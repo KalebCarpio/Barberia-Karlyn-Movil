@@ -100,6 +100,6 @@ Estados: **Backlog → To Do → In Progress → Review / Testing → Done**. L�
 
 - **Kaleb Carpio:** [@KalebCarpio](https://github.com/KalebCarpio).
 - **Javier Hernández González:** [@JavierHG13](https://github.com/JavierHG13).
-- **Javier Flores Hernández:** usuario de GitHub pendiente de confirmar.
+- **Javier Flores Hernández:** [@JaviFlor10](https://github.com/JaviFlor10).
 
 Cada cambio deberá asociarse con el Issue correspondiente y revisarse antes de considerarse terminado. La estrategia definitiva de ramas y Pull Requests se acordará y documentará cuando comience el desarrollo. Un Issue pasa a Done cuando cumple sus criterios de aceptación, está implementado y probado, no tiene bugs críticos, valida la integración REST API cuando aplique, fue revisado y tiene la documentación relacionada actualizada.
