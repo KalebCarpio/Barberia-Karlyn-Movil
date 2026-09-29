@@ -2,7 +2,7 @@
 
 Repositorio de la aplicación móvil de **Barbería Carlyn**, enfocada en que el administrador consulte y gestione las citas del negocio. El identificador técnico del repositorio conserva la grafía `Barberia-Karlyn-Movil`; el nombre del negocio en la documentación es **Barbería Carlyn**.
 
-> **Estado del proyecto:** fase inicial. El repositorio contiene por ahora esta documentación; todavía no se ha publicado el código de la aplicación ni se ha definido el stack móvil.
+> **Estado del proyecto:** base inicial de Expo + React Native + TypeScript publicada. La pantalla de inicio confirma la configuración; las funcionalidades de citas y la integración REST API siguen pendientes.
 
 ## Objetivo
 
@@ -24,9 +24,9 @@ Quedan fuera del MVP: punto de venta, productos, respaldos, administración avan
 
 | Elemento | Estado |
 | --- | --- |
-| Framework móvil y lenguaje | Pendientes de definición en ARCH-01 |
-| Estructura de carpetas y navegación | Pendientes de SETUP-02 |
-| Cliente HTTP y configuración de entornos | Pendientes de ARCH-01 y SETUP-02 |
+| Framework móvil y lenguaje | Expo SDK 57, React Native 0.86 y TypeScript 6; base reutilizada del repositorio de pruebas |
+| Estructura de carpetas y navegación | Pantalla inicial en `App.tsx`; navegación por definir según flujos del MVP |
+| Cliente HTTP y configuración de entornos | Aún no implementados; pendientes de ARCH-01 y SETUP-02 |
 | Backend | REST API existente; los endpoints concretos se documentarán al integrar |
 | Estrategia de pruebas | Se define en SETUP-02 y se ejecuta en los Issues TEST-01 y TEST-02 |
 
@@ -34,27 +34,50 @@ El cliente móvil enviará solicitudes a la API y mostrará sus respuestas, incl
 
 ## Requisitos e instalación
 
-Las versiones de herramientas, dependencias y pasos de instalación se documentarán **cuando se publique el proyecto base** en SETUP-02. Por ahora no hay comandos de instalación ejecutables ni una aplicación que iniciar.
+La base actual requiere Node.js y npm, además de un dispositivo con Expo Go o un emulador compatible. Se recomienda comprobar la versión de Node.js compatible con Expo SDK 57 antes de instalar.
 
-Esta sección deberá incluir:
+```bash
+git clone https://github.com/KalebCarpio/Barberia-Karlyn-Movil.git
+cd Barberia-Karlyn-Movil
+npm ci
+npm start
+```
 
-1. Herramientas y versiones requeridas.
-2. Clonación del repositorio e instalación de dependencias.
-3. Preparación del entorno móvil y del dispositivo o emulador.
-4. Configuración local de la URL de la REST API.
-5. Pasos para iniciar la aplicación.
+En la terminal de Expo se puede elegir el dispositivo o emulador. También están disponibles `npm run android` y `npm run ios` según el entorno de desarrollo. La app muestra una pantalla inicial; todavía no se conecta a la REST API.
 
 ## Configuración local y variables de entorno
 
-La configuración de la API se definirá durante la implementación. Se agregará un archivo de ejemplo con los nombres de variables requeridas, sin credenciales reales. No deben subirse secretos ni archivos locales de entorno.
+La URL y las variables de la REST API se definirán durante ARCH-01. Aún no hay un archivo `.env.example` porque no existe el cliente HTTP. El `.gitignore` excluye archivos locales de entorno y permite publicar un ejemplo sin secretos cuando sea necesario.
 
 ## Ejecución y verificación
 
-Los comandos reales de inicio, compilación, análisis estático y pruebas se añadirán cuando el stack y los scripts existan. TEST-01 contempla regresión funcional y UAT; TEST-02, integración REST API y pruebas móviles. No se declaran verificaciones automáticas como realizadas antes de configurarlas.
+Comandos disponibles en `package.json`:
+
+```bash
+npm start          # servidor Expo
+npm run android    # abrir en Android
+npm run ios        # abrir en iOS
+npm run typecheck  # comprobar tipos de TypeScript
+```
+
+Aún no hay pruebas automatizadas ni flujo de integración. TEST-01 contempla regresión funcional y UAT; TEST-02, integración REST API y pruebas móviles.
 
 ## Estructura del repositorio
 
-La estructura de carpetas todavía no existe. Se documentará aquí después de SETUP-02 para que coincida con los archivos publicados, en lugar de presentar carpetas previstas como si ya estuvieran implementadas.
+La base publicada contiene:
+
+```text
+App.tsx            Pantalla inicial de la aplicación
+index.js           Registro del componente principal en Expo
+app.json           Nombre y configuración de Expo
+package.json       Dependencias y scripts
+package-lock.json  Versiones resueltas de dependencias
+tsconfig.json       Configuración de TypeScript
+.gitignore         Exclusión de archivos locales y generados
+README.md          Documentación del proyecto
+```
+
+La navegación, el cliente HTTP y la estructura funcional se incorporarán cuando se implementen los Issues correspondientes.
 
 ## Organización del trabajo
 
