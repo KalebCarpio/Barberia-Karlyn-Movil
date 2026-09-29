@@ -1,49 +1,82 @@
 # Barbería Carlyn — aplicación móvil administrativa
 
-Aplicación móvil del MVP de Barbería Carlyn, enfocada en que el administrador consulte y gestione citas. Este repositorio contiene el trabajo de la aplicación móvil; la REST API existente es la fuente de verdad para datos y reglas de negocio.
+Repositorio de la aplicación móvil de **Barbería Carlyn**, enfocada en que el administrador consulte y gestione las citas del negocio. El identificador técnico del repositorio conserva la grafía `Barberia-Karlyn-Movil`; el nombre del negocio en la documentación es **Barbería Carlyn**.
 
-> **Estado:** repositorio inicial. La aplicación, sus dependencias y las instrucciones de ejecución aún no están implementadas.
+> **Estado del proyecto:** fase inicial. El repositorio contiene por ahora esta documentación; todavía no se ha publicado el código de la aplicación ni se ha definido el stack móvil.
 
-## Alcance del MVP
+## Objetivo
 
-- Inicio de sesión administrativo, gestión de sesión, recuperación de acceso y perfil.
-- Consulta de sucursales, servicios, barberos, fechas y horarios disponibles.
-- Dashboard con citas pendientes y próximas, filtros y detalle de cita.
-- Modificación, reprogramación, actualización de estado y cancelación de citas.
-- Historial de citas, manejo de carga, estados vacíos y errores.
-- Pruebas funcionales, móviles y de integración con la REST API.
+Ofrecer al administrador un flujo móvil para revisar citas pendientes y próximas, consultar disponibilidad, gestionar cambios y consultar el historial. La aplicación consumirá la **REST API existente**, que es la fuente de verdad para datos y reglas de negocio. La aplicación móvil no duplicará validaciones de negocio del backend.
 
-No se incluyen punto de venta, productos, respaldos, administración avanzada de bases de datos ni analítica compleja. Las reglas de negocio se validan en el backend; la aplicación móvil consume sus respuestas.
+## Funcionalidades del MVP
 
-## Planeación
+- Autenticación administrativa, gestión de sesión, recuperación de acceso y perfil.
+- Consulta de sucursales, servicios y barberos necesarios para las citas.
+- Consulta de fechas y horarios disponibles.
+- Dashboard de citas, citas pendientes y próximas, filtros y detalle.
+- Modificación y reprogramación de citas con validación de disponibilidad.
+- Actualización de estado y cancelación de citas.
+- Historial de citas y manejo de estados de carga, vacío y error.
 
-El trabajo se organiza con **Scrumban** en [Barbería Carlyn – Mobile App Development](https://github.com/users/KalebCarpio/projects/5). El Product Backlog contiene 26 Issues nuevos distribuidos en ocho Sprints semanales, del 21 de septiembre al 15 de noviembre de 2026.
+Quedan fuera del MVP: punto de venta, productos, respaldos, administración avanzada de bases de datos y analítica compleja.
 
-| Sprint | Periodo | Enfoque |
+## Tecnología y arquitectura
+
+| Elemento | Estado |
+| --- | --- |
+| Framework móvil y lenguaje | Pendientes de definición en ARCH-01 |
+| Estructura de carpetas y navegación | Pendientes de SETUP-02 |
+| Cliente HTTP y configuración de entornos | Pendientes de ARCH-01 y SETUP-02 |
+| Backend | REST API existente; los endpoints concretos se documentarán al integrar |
+| Estrategia de pruebas | Se define en SETUP-02 y se ejecuta en los Issues TEST-01 y TEST-02 |
+
+El cliente móvil enviará solicitudes a la API y mostrará sus respuestas, incluidos errores y estados de disponibilidad. Los contratos y reglas del backend guiarán la implementación.
+
+## Requisitos e instalación
+
+Las versiones de herramientas, dependencias y pasos de instalación se documentarán **cuando se publique el proyecto base** en SETUP-02. Por ahora no hay comandos de instalación ejecutables ni una aplicación que iniciar.
+
+Esta sección deberá incluir:
+
+1. Herramientas y versiones requeridas.
+2. Clonación del repositorio e instalación de dependencias.
+3. Preparación del entorno móvil y del dispositivo o emulador.
+4. Configuración local de la URL de la REST API.
+5. Pasos para iniciar la aplicación.
+
+## Configuración local y variables de entorno
+
+La configuración de la API se definirá durante la implementación. Se agregará un archivo de ejemplo con los nombres de variables requeridas, sin credenciales reales. No deben subirse secretos ni archivos locales de entorno.
+
+## Ejecución y verificación
+
+Los comandos reales de inicio, compilación, análisis estático y pruebas se añadirán cuando el stack y los scripts existan. TEST-01 contempla regresión funcional y UAT; TEST-02, integración REST API y pruebas móviles. No se declaran verificaciones automáticas como realizadas antes de configurarlas.
+
+## Estructura del repositorio
+
+La estructura de carpetas todavía no existe. Se documentará aquí después de SETUP-02 para que coincida con los archivos publicados, en lugar de presentar carpetas previstas como si ya estuvieran implementadas.
+
+## Organización del trabajo
+
+El [GitHub Project de Barbería Carlyn](https://github.com/users/KalebCarpio/projects/5) usa Scrumban con las vistas **Product Backlog** y **Tablero Scrumban**. El backlog administrativo contiene 26 Issues nuevos, agrupados en ocho Sprints semanales del 21 de septiembre al 15 de noviembre de 2026.
+
+| Sprint | Fechas de 2026 | Enfoque |
 | --- | --- | --- |
-| 01 | 21–27 sep 2026 | Alcance, arquitectura, UX y configuración inicial |
-| 02 | 28 sep–4 oct 2026 | Autenticación y perfil |
-| 03 | 5–11 oct 2026 | Sucursales, servicios y barberos |
-| 04 | 12–18 oct 2026 | Disponibilidad |
-| 05 | 19–25 oct 2026 | Dashboard y consulta de citas |
-| 06 | 26 oct–1 nov 2026 | Gestión de citas |
-| 07 | 2–8 nov 2026 | Historial y UX |
-| 08 | 9–15 nov 2026 | Pruebas y documentación |
+| 01 | 21–27 septiembre | Alcance, arquitectura, UI/UX y proyecto base |
+| 02 | 28 septiembre–4 octubre | Autenticación y perfil |
+| 03 | 5–11 octubre | Sucursales, servicios y barberos |
+| 04 | 12–18 octubre | Disponibilidad |
+| 05 | 19–25 octubre | Dashboard y citas |
+| 06 | 26 octubre–1 noviembre | Gestión de citas |
+| 07 | 2–8 noviembre | Historial y UX |
+| 08 | 9–15 noviembre | Pruebas y documentación |
 
-Flujo de trabajo: **Backlog → To Do → In Progress → Review / Testing → Done**. Límites WIP: 3 en In Progress y 2 en Review / Testing. Los Issues nuevos comienzan en Backlog.
+Estados: **Backlog → To Do → In Progress → Review / Testing → Done**. Límites WIP: 3 en In Progress y 2 en Review / Testing. La prioridad y los Story Points se consultan en el Project.
 
-## Equipo
+## Equipo y contribuciones
 
 - **Kaleb Carpio:** [@KalebCarpio](https://github.com/KalebCarpio).
 - **Javier Hernández González:** [@JavierHG13](https://github.com/JavierHG13).
 - **Javier Flores Hernández:** usuario de GitHub pendiente de confirmar.
 
-## Desarrollo y ejecución
-
-La arquitectura, el stack y la estructura del proyecto se definirán en **ARCH-01** y **SETUP-02**. Cuando se publique el proyecto base, esta sección incluirá requisitos, instalación, configuración local, variables de entorno, comandos para ejecutar y probar la app, y la referencia a los endpoints de la REST API. No se deben subir credenciales ni archivos de entorno con secretos.
-
-Cada cambio debe relacionarse con su Issue. Para considerarlo Done debe estar implementado, cumplir sus criterios de aceptación, estar probado, no tener bugs críticos, validar la integración REST API cuando aplique, pasar revisión y actualizar la documentación relacionada.
-
-## Repositorio
-
-El identificador técnico y la URL conservan `Barberia-Karlyn-Movil`; el nombre del proyecto y del negocio en esta documentación es **Barbería Carlyn**.
+Cada cambio deberá asociarse con el Issue correspondiente y revisarse antes de considerarse terminado. La estrategia definitiva de ramas y Pull Requests se acordará y documentará cuando comience el desarrollo. Un Issue pasa a Done cuando cumple sus criterios de aceptación, está implementado y probado, no tiene bugs críticos, valida la integración REST API cuando aplique, fue revisado y tiene la documentación relacionada actualizada.
