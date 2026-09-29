@@ -60,7 +60,7 @@ npm run ios        # abrir en iOS
 npm run typecheck  # comprobar tipos de TypeScript
 ```
 
-Aún no hay pruebas automatizadas ni flujo de integración. TEST-01 contempla regresión funcional y UAT; TEST-02, integración REST API y pruebas móviles.
+El workflow `Quality` en `.github/workflows/quality.yml` ejecuta `npm ci`, `npm run typecheck` y Expo Doctor en Pull Requests hacia `main` y en cambios enviados a `main`. Todavía no hay lint, comprobación de formato ni pruebas funcionales automatizadas; se incorporarán cuando existan sus scripts. TEST-01 contempla regresión funcional y UAT; TEST-02, integración REST API y pruebas móviles.
 
 ## Estructura del repositorio
 
