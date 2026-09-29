@@ -60,7 +60,7 @@ npm run ios        # abrir en iOS
 npm run typecheck  # comprobar tipos de TypeScript
 ```
 
-El workflow `Quality` en `.github/workflows/quality.yml` ejecuta `npm ci`, `npm run typecheck` y Expo Doctor en Pull Requests hacia `main` y en cambios enviados a `main`. Todavía no hay lint, comprobación de formato ni pruebas funcionales automatizadas; se incorporarán cuando existan sus scripts. TEST-01 contempla regresión funcional y UAT; TEST-02, integración REST API y pruebas móviles.
+El workflow `Quality` en `.github/workflows/quality.yml` ejecuta `npm ci`, `npm run typecheck` y Expo Doctor en Pull Requests hacia `develop` y `main`, y en cambios enviados a ambas ramas. Todavía no hay lint, comprobación de formato ni pruebas funcionales automatizadas; se incorporarán cuando existan sus scripts. TEST-01 contempla regresión funcional y UAT; TEST-02, integración REST API y pruebas móviles.
 
 ## Estructura del repositorio
 
@@ -102,4 +102,23 @@ Estados: **Backlog → To Do → In Progress → Review / Testing → Done**. L�
 - **Javier Hernández González:** [@JavierHG13](https://github.com/JavierHG13).
 - **Javier Flores Hernández:** [@JaviFlor10](https://github.com/JaviFlor10).
 
-Cada cambio se relaciona con su Issue. La rama `main` reúne las versiones integradas. Para cada trabajo se crea una rama corta desde `main`, por ejemplo `feature/ARCH-01-arquitectura-movil` o `fix/BUG-01-error-critico`. El cambio se propone mediante un Pull Request hacia `main`, se revisa y se prueba antes de fusionarlo. Aún no se han configurado reglas automáticas de protección de ramas. Un Issue pasa a Done cuando cumple sus criterios de aceptación, está implementado y probado, no tiene bugs críticos, valida la integración REST API cuando aplique, fue revisado y tiene la documentación relacionada actualizada.
+Cada cambio se relaciona con su Issue. Se utiliza el flujo `feature → develop → main`:
+
+- `main`: versiones estables, revisadas y probadas.
+- `develop`: integración de los avances del equipo.
+- `feature/ID-descripcion`: una rama por Issue, creada desde `develop`. Por ejemplo, `feature/AUTH-01-login`. Las correcciones pueden usar `fix/BUG-01-error-critico`.
+
+Para iniciar una actividad:
+
+```bash
+git fetch origin
+git switch develop
+git pull --ff-only origin develop
+git switch -c feature/AUTH-01-login
+# Realizar y comprobar los cambios; después crear el commit.
+git push -u origin feature/AUTH-01-login
+```
+
+El Pull Request de cada actividad se dirige a `develop`. Antes de fusionarlo, otro integrante revisa el cambio, se comprueba el cumplimiento de los criterios de aceptación y deben pasar las verificaciones de Quality. Cuando el conjunto integrado cumple las pruebas previstas, se abre un Pull Request de `develop` hacia `main` y se vuelve a revisar y validar.
+
+Quality se ejecuta en Pull Requests y pushes de ambas ramas. Actualmente comprueba TypeScript y Expo Doctor; las pruebas funcionales y la distribución de compilaciones móviles siguen pendientes. No se realiza un despliegue automático. Aún no se han configurado reglas automáticas de protección de ramas. Un Issue pasa a Done cuando cumple sus criterios de aceptación, está implementado y probado, no tiene bugs críticos, valida la integración REST API cuando aplique, fue revisado y tiene la documentación relacionada actualizada.
