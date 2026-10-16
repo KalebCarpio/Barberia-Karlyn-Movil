@@ -122,3 +122,38 @@ git push -u origin feature/AUTH-01-login
 El Pull Request de cada actividad se dirige a `develop`. Antes de fusionarlo, otro integrante revisa el cambio, se comprueba el cumplimiento de los criterios de aceptación y deben pasar las verificaciones de Quality. Cuando el conjunto integrado cumple las pruebas previstas, se abre un Pull Request de `develop` hacia `main` y se vuelve a revisar y validar.
 
 Quality se ejecuta en Pull Requests y pushes de ambas ramas. Actualmente comprueba TypeScript y Expo Doctor; las pruebas funcionales y la distribución de compilaciones móviles siguen pendientes. No se realiza un despliegue automático. Aún no se han configurado reglas automáticas de protección de ramas. Un Issue pasa a Done cuando cumple sus criterios de aceptación, está implementado y probado, no tiene bugs críticos, valida la integración REST API cuando aplique, fue revisado y tiene la documentación relacionada actualizada.
+
+## Avance integrado en `feature/JAVIER/catalogo-y-citas-movil`
+
+Esta rama incorpora un cliente movil funcional para consultar el catalogo y gestionar citas. El avance se relaciona con los Issues #53, #54, #59, #60 y #68.
+
+### Funcionalidades incluidas
+
+- Inicio de sesion, registro de cuenta y persistencia local de la sesion mediante `expo-secure-store`.
+- Consulta de sucursales, servicios y barberos relacionados con una sucursal.
+- Consulta de dias y horarios disponibles para el servicio elegido.
+- Creacion, consulta, cancelacion y reprogramacion de citas desde la aplicacion.
+- Consulta de proximas citas e historial de citas del usuario.
+- Estados de carga, vacio y error para las consultas principales.
+- Uso del logotipo de Carlyn y una interfaz visual alineada con la identidad de la barberia.
+
+### Configuracion de la API
+
+Copiar `.env.example` a `.env` y asignar la direccion del backend:
+
+```ini
+EXPO_PUBLIC_API_URL=http://IP_DE_TU_EQUIPO:4000
+```
+
+En Expo Go no debe utilizarse `localhost`: se requiere la IP local del equipo que ejecuta el servidor y ambos dispositivos deben estar en la misma red. El archivo `.env` no se versiona.
+
+### Validacion antes de fusionar
+
+```bash
+npm ci
+npm run typecheck
+npx expo-doctor
+npx expo export --platform web
+```
+
+Las pruebas completas con datos reales del backend y la aprobacion de otro integrante son necesarias antes de cerrar los Issues o fusionar la rama hacia `develop`.
