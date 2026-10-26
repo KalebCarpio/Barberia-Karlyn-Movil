@@ -14,24 +14,30 @@ import {
   View,
 } from 'react-native';
 import { apiRequest } from './src/api';
+import {
+  bookingDates,
+  dateKey,
+  displayDate,
+  fetchSlots,
+  fetchUnavailableDates,
+  hasAvailableSlot,
+  Slot,
+} from './src/availability';
+import {
+  Barber,
+  Branch,
+  fetchBarbersByBranch,
+  fetchBranches,
+  fetchServices,
+  filterByCategory,
+  mapService,
+  Service,
+  serviceCategories,
+} from './src/catalog';
+import { ApiRecord, pick, records, toNumber } from './src/records';
 import { clearSession, readSession, saveSession } from './src/session';
 
 type Screen = 'loading' | 'login' | 'home' | 'services' | 'booking' | 'appointments' | 'profile';
-type ApiRecord = Record<string, any>;
-
-type Service = {
-  id: number;
-  name: string;
-  category: string;
-  description: string;
-  price: number;
-  duration: number;
-  imageUrl?: string;
-};
-
-type Branch = { id: number; name: string; detail: string };
-type Barber = { id: number; name: string; specialty: string };
-type Slot = { time: string; available: boolean; reason?: string };
 type Appointment = {
   id: number;
   service: Service;
@@ -67,39 +73,6 @@ const demoServices: Service[] = [
   { id: 3, name: 'Barba premium', category: 'Barba', description: 'Perfilado con toalla caliente y productos premium.', price: 140, duration: 30 },
 ];
 
-function pick(record: ApiRecord, ...keys: string[]) {
-  for (const key of keys) {
-    const value = record?.[key];
-    if (value !== undefined && value !== null && value !== '') return value;
-  }
-  return undefined;
-}
-
-function records(payload: unknown, keys: string[]) {
-  if (Array.isArray(payload)) return payload as ApiRecord[];
-  const data = payload as ApiRecord;
-  for (const key of keys) {
-    if (Array.isArray(data?.[key])) return data[key] as ApiRecord[];
-  }
-  return [] as ApiRecord[];
-}
-
-function toNumber(value: unknown, fallback = 0) {
-  const number = Number(value);
-  return Number.isFinite(number) ? number : fallback;
-}
-
-function mapService(item: ApiRecord): Service {
-  return {
-    id: toNumber(pick(item, 'id', 'servicio_id', 'service_id')),
-    name: String(pick(item, 'nombre', 'name', 'nombre_servicio') || 'Servicio'),
-    category: String(pick(item, 'categoria', 'category', 'categoria_servicio') || 'Servicios'),
-    description: String(pick(item, 'descripcion', 'description') || 'Servicio profesional de Barberia Carlyn.'),
-    price: toNumber(pick(item, 'precio', 'price', 'precio_servicio')),
-    duration: toNumber(pick(item, 'duracion', 'duration', 'duracion_minutos'), 30),
-    imageUrl: String(pick(item, 'imagen_url', 'image_url', 'imageUrl') || '') || undefined,
-  };
-}
 
 function mapAppointment(item: ApiRecord): Appointment {
   const service = mapService({
@@ -126,38 +99,6 @@ function mapAppointment(item: ApiRecord): Appointment {
   };
 }
 
-function dateKey(date: Date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-function displayDate(value: string) {
-  if (!value) return 'Sin seleccionar';
-  const [year, month, day] = value.split('-').map(Number);
-  const date = new Date(year, (month || 1) - 1, day || 1, 12);
-  return new Intl.DateTimeFormat('es-MX', { weekday: 'short', day: 'numeric', month: 'short' })
-    .format(date)
-    .replace('.', '');
-}
-
-function bookingDates() {
-  return Array.from({ length: 14 }, (_, index) => {
-    const date = new Date();
-    date.setHours(12, 0, 0, 0);
-    date.setDate(date.getDate() + index);
-    return { key: dateKey(date), label: displayDate(dateKey(date)) };
-  });
-}
-
-const normalizeSlots = (payload: unknown): Slot[] => records(payload, ['disponibles', 'slots', 'libres', 'data', 'horarios'])
-  .map((item) => ({
-    time: String(pick(item, 'hora', 'time', 'hora_inicio') || '').slice(0, 5),
-    available: pick(item, 'disponible', 'available') !== false && pick(item, 'ocupado', 'busy') !== true,
-    reason: pick(item, 'motivo', 'reason') ? String(pick(item, 'motivo', 'reason')) : undefined,
-  }))
-  .filter((slot) => Boolean(slot.time));
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('loading');
@@ -182,23 +123,22 @@ export default function App() {
   const [selectedDate, setSelectedDate] = useState(dateKey(new Date()));
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [slots, setSlots] = useState<Slot[]>([]);
+  const [unavailableDates, setUnavailableDates] = useState<string[]>([]);
   const [bookingMessage, setBookingMessage] = useState('Elige sucursal, barbero, fecha y horario.');
   const [loadingBookingData, setLoadingBookingData] = useState(false);
   const [savingBooking, setSavingBooking] = useState(false);
   const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null);
 
-  const categories = useMemo(() => ['Todos', ...Array.from(new Set(services.map((service) => service.category)))], [services]);
-  const filteredServices = useMemo(() => selectedCategory === 'Todos'
-    ? services
-    : services.filter((service) => service.category === selectedCategory), [services, selectedCategory]);
+  const categories = useMemo(() => serviceCategories(services), [services]);
+  const filteredServices = useMemo(() => filterByCategory(services, selectedCategory), [services, selectedCategory]);
+  const dates = useMemo(() => bookingDates(unavailableDates), [unavailableDates]);
   const currentBranch = branches.find((branch) => branch.id === selectedBranchId);
   const currentBarber = barbers.find((barber) => barber.id === selectedBarberId);
 
   const loadCatalog = async () => {
     setLoadingCatalog(true);
     try {
-      const response = await apiRequest<unknown>('/servicios/activos');
-      const loaded = records(response, ['servicios', 'data', 'items']).map(mapService).filter((service) => service.id);
+      const loaded = await fetchServices();
       if (!loaded.length) throw new Error('El catalogo no contiene servicios disponibles.');
       setServices(loaded);
       setSelectedService((current) => loaded.find((service) => service.id === current.id) || loaded[0]);
@@ -254,12 +194,7 @@ export default function App() {
     if (screen !== 'booking') return;
     const loadBranches = async () => {
       try {
-        const response = await apiRequest<unknown>('/locales');
-        const loaded = records(response, ['locales', 'data', 'sucursales']).map((item) => ({
-          id: toNumber(pick(item, 'id', 'local_id', 'sucursal_id')),
-          name: String(pick(item, 'nombre', 'name', 'nombre_local') || 'Sucursal'),
-          detail: String(pick(item, 'direccion', 'address', 'ubicacion') || 'Ubicacion disponible'),
-        })).filter((branch) => branch.id);
+        const loaded = await fetchBranches();
         setBranches(loaded);
         setSelectedBranchId((current) => current && loaded.some((branch) => branch.id === current) ? current : loaded[0]?.id || null);
         if (!loaded.length) setBookingMessage('No hay sucursales disponibles para reservar.');
@@ -275,12 +210,7 @@ export default function App() {
     const loadBarbers = async () => {
       setLoadingBookingData(true);
       try {
-        const response = await apiRequest<unknown>(`/barberos/local/${selectedBranchId}`);
-        const loaded = records(response, ['barberos', 'data', 'items']).map((item) => ({
-          id: toNumber(pick(item, 'id', 'barbero_id', 'barber_id')),
-          name: String(pick(item, 'nombre', 'name', 'nombre_completo') || 'Barbero'),
-          specialty: String(pick(item, 'especialidad', 'specialty') || 'Especialista Carlyn'),
-        })).filter((barber) => barber.id);
+        const loaded = await fetchBarbersByBranch(selectedBranchId);
         setBarbers(loaded);
         setSelectedBarberId((current) => current && loaded.some((barber) => barber.id === current) ? current : loaded[0]?.id || null);
         if (!loaded.length) setBookingMessage('Esta sucursal aun no tiene barberos disponibles.');
@@ -300,10 +230,9 @@ export default function App() {
       setLoadingBookingData(true);
       setSelectedTime(null);
       try {
-        const response = await apiRequest<unknown>(`/citas/horarios-disponibles?barberoId=${selectedBarberId}&fecha=${selectedDate}`, { token });
-        const loaded = normalizeSlots(response);
+        const loaded = await fetchSlots(selectedBarberId, selectedDate, token);
         setSlots(loaded);
-        setBookingMessage(loaded.some((slot) => slot.available) ? 'Selecciona un horario disponible.' : 'No hay horarios libres para este dia.');
+        setBookingMessage(hasAvailableSlot(loaded) ? 'Selecciona un horario disponible.' : 'No hay horarios libres para este dia.');
       } catch (error) {
         setSlots([]);
         setBookingMessage(error instanceof Error ? error.message : 'No fue posible consultar los horarios.');
@@ -313,6 +242,14 @@ export default function App() {
     };
     void loadSlots();
   }, [screen, selectedBarberId, selectedDate, token]);
+
+  useEffect(() => {
+    if (screen !== 'booking' || !selectedBarberId) return;
+    // Si falla la consulta de fechas se dejan todas habilitadas y la API valida al consultar horarios.
+    fetchUnavailableDates(selectedBarberId, token)
+      .then(setUnavailableDates)
+      .catch(() => setUnavailableDates([]));
+  }, [screen, selectedBarberId, token]);
 
   const signIn = async () => {
     if (!email.trim() || !password) {
@@ -533,7 +470,7 @@ export default function App() {
       </ScrollView>}
       <Text style={styles.step}>3. ELIGE EL DIA</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.dateStrip}>
-        {bookingDates().map((date) => <Pressable key={date.key} onPress={() => setSelectedDate(date.key)} style={[styles.dateCard, selectedDate === date.key && styles.dateCardSelected]}><Text style={[styles.dateText, selectedDate === date.key && styles.dateTextSelected]}>{date.label}</Text></Pressable>)}
+        {dates.map((date) => <Pressable key={date.key} disabled={!date.available} onPress={() => setSelectedDate(date.key)} style={[styles.dateCard, !date.available && styles.dateCardBusy, selectedDate === date.key && styles.dateCardSelected]}><Text style={[styles.dateText, !date.available && styles.slotBusyText, selectedDate === date.key && styles.dateTextSelected]}>{date.label}</Text></Pressable>)}
       </ScrollView>
       <Text style={styles.step}>4. HORARIO DISPONIBLE</Text>
       {loadingBookingData && !slots.length ? <Loading label="Consultando disponibilidad..." /> : <View style={styles.slotGrid}>
@@ -693,6 +630,7 @@ const styles = StyleSheet.create({
   step: { color: colors.gold, fontSize: 11, letterSpacing: 1.5, fontWeight: '900', marginTop: 18, marginBottom: 3 },
   dateStrip: { gap: 8, paddingVertical: 10, paddingRight: 20 },
   dateCard: { width: 90, minHeight: 56, borderRadius: 12, backgroundColor: colors.paper, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 6 },
+  dateCardBusy: { backgroundColor: colors.busy, borderColor: colors.busy },
   dateCardSelected: { backgroundColor: colors.gold, borderColor: colors.gold },
   dateText: { color: colors.ink, fontSize: 12, textAlign: 'center', fontWeight: '800' },
   dateTextSelected: { color: colors.ink },
