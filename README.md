@@ -24,7 +24,7 @@ Quedan fuera del MVP: punto de venta, productos, respaldos, administración avan
 
 | Elemento | Estado |
 | --- | --- |
-| Framework móvil y lenguaje | Expo SDK 57, React Native 0.86 y TypeScript 6; base reutilizada del repositorio de pruebas |
+| Framework móvil y lenguaje | Expo SDK 58, React Native 0.88 y TypeScript 6; base reutilizada del repositorio de pruebas |
 | Estructura de carpetas y navegación | Pantalla inicial en `App.tsx`; navegación por definir según flujos del MVP |
 | Cliente HTTP y configuración de entornos | Aún no implementados; pendientes de ARCH-01 y SETUP-02 |
 | Backend | REST API existente; los endpoints concretos se documentarán al integrar |
@@ -58,9 +58,10 @@ npm start          # servidor Expo
 npm run android    # abrir en Android
 npm run ios        # abrir en iOS
 npm run typecheck  # comprobar tipos de TypeScript
+npm test           # pruebas unitarias e integración (Jest)
 ```
 
-El workflow `Quality` en `.github/workflows/quality.yml` ejecuta `npm ci`, `npm run typecheck` y Expo Doctor en Pull Requests hacia `develop` y `main`, y en cambios enviados a ambas ramas. Todavía no hay lint, comprobación de formato ni pruebas funcionales automatizadas; se incorporarán cuando existan sus scripts. TEST-01 contempla regresión funcional y UAT; TEST-02, integración REST API y pruebas móviles.
+El workflow `Quality` en `.github/workflows/quality.yml` ejecuta `npm ci`, `npm run typecheck`, las pruebas unitarias, las pruebas de integración REST API y Expo Doctor en Pull Requests hacia `develop` y `main`, y en cambios enviados a ambas ramas. Todavía no hay lint ni comprobación de formato. TEST-01 contempla regresión funcional y UAT; TEST-02, integración REST API y pruebas móviles.
 
 ## Estructura del repositorio
 
@@ -121,7 +122,7 @@ git push -u origin feature/AUTH-01-login
 
 El Pull Request de cada actividad se dirige a `develop`. Antes de fusionarlo, otro integrante revisa el cambio, se comprueba el cumplimiento de los criterios de aceptación y deben pasar las verificaciones de Quality. Cuando el conjunto integrado cumple las pruebas previstas, se abre un Pull Request de `develop` hacia `main` y se vuelve a revisar y validar.
 
-Quality se ejecuta en Pull Requests y pushes de ambas ramas. Actualmente comprueba TypeScript y Expo Doctor; las pruebas funcionales y la distribución de compilaciones móviles siguen pendientes. No se realiza un despliegue automático. Aún no se han configurado reglas automáticas de protección de ramas. Un Issue pasa a Done cuando cumple sus criterios de aceptación, está implementado y probado, no tiene bugs críticos, valida la integración REST API cuando aplique, fue revisado y tiene la documentación relacionada actualizada.
+Quality se ejecuta en Pull Requests y pushes de ambas ramas. Actualmente comprueba TypeScript, pruebas unitarias, pruebas de integración REST API y Expo Doctor; la distribución de compilaciones móviles sigue pendiente. No se realiza un despliegue automático. Aún no se han configurado reglas automáticas de protección de ramas. Un Issue pasa a Done cuando cumple sus criterios de aceptación, está implementado y probado, no tiene bugs críticos, valida la integración REST API cuando aplique, fue revisado y tiene la documentación relacionada actualizada.
 
 ## Avance integrado en `feature/JAVIER/catalogo-y-citas-movil`
 
@@ -142,18 +143,33 @@ Esta rama incorpora un cliente movil funcional para consultar el catalogo y gest
 Copiar `.env.example` a `.env` y asignar la direccion del backend:
 
 ```ini
-EXPO_PUBLIC_API_URL=http://IP_DE_TU_EQUIPO:4000
+# Entorno de pruebas (staging) publicado en Render: funciona desde cualquier red
+EXPO_PUBLIC_API_URL=https://barberia-carlyn-backend.onrender.com
+
+# Backend local: solo funciona en la misma red Wi-Fi que el equipo
+# EXPO_PUBLIC_API_URL=http://IP_DE_TU_EQUIPO:4000
 ```
 
-En Expo Go no debe utilizarse `localhost`: se requiere la IP local del equipo que ejecuta el servidor y ambos dispositivos deben estar en la misma red. El archivo `.env` no se versiona.
+En Expo Go no debe utilizarse `localhost`. El servidor gratuito de Render se suspende tras unos minutos sin uso, por lo que la primera consulta puede tardar hasta un minuto. El archivo `.env` no se versiona.
 
 ### Validacion antes de fusionar
 
 ```bash
 npm ci
 npm run typecheck
+npm run test:unit
+npm run test:integration
 npx expo-doctor
-npx expo export --platform web
 ```
+
+### Pruebas y datos de prueba
+
+| Carpeta | Tipo de prueba | Contenido |
+| --- | --- | --- |
+| `__tests__/fixtures/` | Datos de prueba | Respuestas de la REST API con la misma forma que el backend real: servicios, sucursales, barberos, fechas y horarios |
+| `__tests__/unit/` | Unitarias | Transformación de datos, filtros por categoría, fechas reservables y normalización de horarios, sin red |
+| `__tests__/integration/` | Integración REST API | Endpoint consultado, token enviado, respuesta con datos, respuesta vacía, error de API y falla de red, con `fetch` simulado |
+
+Los casos, datos usados y resultados de cada Issue se registran en [`docs/pruebas/catalogo-y-disponibilidad.md`](docs/pruebas/catalogo-y-disponibilidad.md).
 
 Las pruebas completas con datos reales del backend y la aprobacion de otro integrante son necesarias antes de cerrar los Issues o fusionar la rama hacia `develop`.
