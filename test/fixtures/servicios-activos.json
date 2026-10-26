@@ -1,0 +1,38 @@
+{
+  "servicios": [
+    {
+      "id": 11,
+      "nombre": "Paquete 1 - Corte First Class",
+      "descripcion": "Corte personalizado, lavado, masaje, peinado premium, locion",
+      "categoria": "Paquetes",
+      "precio": "250.00",
+      "duracion": 60,
+      "activo": true,
+      "imagen_url": "https://example.com/servicios/first-class.jpg"
+    },
+    {
+      "id": 12,
+      "nombre": "Corte clasico",
+      "descripcion": "Corte con tijera y maquina",
+      "categoria": "Cortes",
+      "precio": "180.00",
+      "duracion": 45,
+      "activo": true,
+      "imagen_url": null
+    },
+    {
+      "id": 13,
+      "nombre": "Barba premium",
+      "descripcion": "",
+      "categoria": "Barba",
+      "precio": "140.00",
+      "duracion": null,
+      "activo": true,
+      "imagen_url": ""
+    },
+    {
+      "nombre": "Registro sin id (debe descartarse)",
+      "precio": "100.00"
+    }
+  ]
+}

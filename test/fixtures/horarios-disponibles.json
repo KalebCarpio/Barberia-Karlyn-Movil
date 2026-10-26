@@ -1,0 +1,16 @@
+{
+  "disponibles": [
+    { "hora": "09:40", "disponible": true, "ocupado": false, "pasado": false, "motivo": null },
+    { "hora": "11:00", "disponible": true, "ocupado": false, "pasado": false, "motivo": null }
+  ],
+  "libres": [
+    { "hora": "09:40", "disponible": true, "ocupado": false, "pasado": false, "motivo": null },
+    { "hora": "11:00", "disponible": true, "ocupado": false, "pasado": false, "motivo": null }
+  ],
+  "slots": [
+    { "hora": "09:00", "disponible": false, "ocupado": false, "pasado": true, "motivo": "Horario pasado" },
+    { "hora": "09:40", "disponible": true, "ocupado": false, "pasado": false, "motivo": null },
+    { "hora": "10:20", "disponible": false, "ocupado": true, "pasado": false, "motivo": "Horario reservado" },
+    { "hora": "11:00", "disponible": true, "ocupado": false, "pasado": false, "motivo": null }
+  ]
+}
