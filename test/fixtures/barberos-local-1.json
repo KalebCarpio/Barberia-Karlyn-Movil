@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "data": [
+    { "barbero_id": 34, "nombre": "Carlos Mendez", "especialidad": "Corte clasico y barba", "calificacion": "4.80" },
+    { "barbero_id": 35, "nombre": "Luis Hernandez", "especialidad": "Degradados y diseno", "calificacion": "4.70" },
+    { "barbero_id": 36, "nombre": "Diego Martinez", "especialidad": null, "calificacion": "4.60" }
+  ],
+  "total": 3
+}

@@ -1,12 +1,28 @@
 {
   "expo": {
-    "name": "Barbería Carlyn",
-    "slug": "barberia-carlyn-movil",
+    "name": "carlyn-mobile",
+    "slug": "carlyn-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/app-icon.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true
-    }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#F7F3EC",
+        "foregroundImage": "./assets/app-icon.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/app-icon.png"
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-font",
+      "expo-status-bar"
+    ]
   }
 }
