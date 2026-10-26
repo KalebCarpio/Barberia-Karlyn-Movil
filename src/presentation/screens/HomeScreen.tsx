@@ -1,7 +1,8 @@
 import { Pressable, Text, View } from 'react-native';
 import { Service } from '../../domain/models';
 import { ServiceCard } from '../components/ServiceCard';
-import { Header, Loading, Stat } from '../components/ui';
+import { SkeletonList } from '../components/Loaders';
+import { Header, Stat } from '../components/ui';
 import { styles } from '../theme/styles';
 import { AppointmentsViewModel } from '../viewmodels/useAppointmentsViewModel';
 import { CatalogViewModel } from '../viewmodels/useCatalogViewModel';
@@ -29,7 +30,7 @@ export function HomeScreen({ name, catalog, appointments, onShowServices, onBook
         <Stat label="Tus citas" value={appointments.loading ? '...' : String(appointments.activeCount)} />
       </View>
       <View style={styles.sectionLine}><Text style={styles.sectionTitle}>Mas solicitados</Text><Pressable onPress={onShowServices}><Text style={styles.link}>Ver todos</Text></Pressable></View>
-      {catalog.loading ? <Loading label="Cargando servicios..." /> : catalog.services.slice(0, 3).map((service) => <ServiceCard key={service.id} service={service} onPress={() => onBook(service)} />)}
+      {catalog.loading ? <SkeletonList count={3} /> : catalog.services.slice(0, 3).map((service) => <ServiceCard key={service.id} service={service} onPress={() => onBook(service)} />)}
       {catalog.message ? <Text style={styles.warning}>Mostrando servicios de ejemplo: {catalog.message}</Text> : null}
     </>
   );

@@ -1,7 +1,9 @@
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { displayDate } from '../../domain/availability';
 import { Appointment } from '../../domain/models';
-import { Empty, Header, Loading, money, Summary } from '../components/ui';
+import { SkeletonList } from '../components/Loaders';
+import { Empty, Header, money, Summary } from '../components/ui';
+import { useDialog } from '../feedback/DialogProvider';
 import { styles } from '../theme/styles';
 import { AppointmentsViewModel } from '../viewmodels/useAppointmentsViewModel';
 
@@ -12,22 +14,29 @@ type Props = {
 };
 
 export function AppointmentsScreen({ vm, onReschedule, onBookAnother }: Props) {
-  const confirmCancel = (appointment: Appointment) => {
-    Alert.alert('Cancelar cita', `Deseas cancelar ${appointment.service.name}?`, [
-      { text: 'No', style: 'cancel' },
-      {
-        text: 'Si, cancelar', style: 'destructive', onPress: async () => {
-          const result = await vm.cancel(appointment);
-          Alert.alert(result.title, result.message);
-        },
-      },
-    ]);
+  const dialog = useDialog();
+
+  const confirmCancel = async (appointment: Appointment) => {
+    const accepted = await dialog.confirm({
+      title: '¿Cancelar esta cita?',
+      message: 'Se liberara el horario y no podras recuperarla.',
+      details: [
+        { label: 'Servicio', value: appointment.service.name },
+        { label: 'Fecha', value: displayDate(appointment.date) },
+        { label: 'Hora', value: appointment.time },
+      ],
+      confirmLabel: 'Si, cancelar cita',
+      cancelLabel: 'No, conservarla',
+      destructive: true,
+    });
+    if (!accepted) return;
+    await dialog.notify(await vm.cancel(appointment));
   };
 
   return (
     <>
       <Header eyebrow="MI AGENDA" title="Mis citas" />
-      {vm.loading ? <Loading label="Cargando tus citas..." /> : vm.appointments.length === 0 ? <Empty label="Aun no tienes citas registradas." /> : vm.appointments.map((appointment) => <View key={appointment.id} style={styles.appointmentCard}>
+      {vm.loading ? <SkeletonList count={2} variant="appointment" /> : vm.appointments.length === 0 ? <Empty label="Aun no tienes citas registradas." /> : vm.appointments.map((appointment) => <View key={appointment.id} style={styles.appointmentCard}>
         <View style={styles.appointmentHead}><Text style={[styles.status, !appointment.canManage && styles.statusMuted]}>{appointment.status.toUpperCase()}</Text><Text style={styles.price}>{money(appointment.service.price)}</Text></View>
         <Text style={styles.appointmentName}>{appointment.service.name}</Text>
         <Text style={styles.helperText}>Con {appointment.barber}</Text>

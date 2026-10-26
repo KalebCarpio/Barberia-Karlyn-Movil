@@ -1,12 +1,26 @@
-import { Alert, Pressable, Text, TextInput, View } from 'react-native';
+import { Pressable, Text, TextInput, View } from 'react-native';
 import { Header } from '../components/ui';
+import { useDialog } from '../feedback/DialogProvider';
 import { colors, styles } from '../theme/styles';
 import { SessionViewModel } from '../viewmodels/useSessionViewModel';
 
 export function ProfileScreen({ vm }: { vm: SessionViewModel }) {
+  const dialog = useDialog();
+
   const save = async () => {
     const result = await vm.saveProfile();
-    if (result) Alert.alert(result.title, result.message);
+    if (result) await dialog.notify(result);
+  };
+
+  const signOut = async () => {
+    const accepted = await dialog.confirm({
+      title: '¿Cerrar sesion?',
+      message: 'Tendras que volver a iniciar sesion para ver tus citas.',
+      confirmLabel: 'Cerrar sesion',
+      cancelLabel: 'Seguir aqui',
+      destructive: true,
+    });
+    if (accepted) await vm.signOut();
   };
 
   return (
@@ -20,7 +34,7 @@ export function ProfileScreen({ vm }: { vm: SessionViewModel }) {
       <Text style={styles.label}>Telefono</Text>
       <TextInput value={vm.phone} onChangeText={vm.setPhone} keyboardType="phone-pad" placeholder="Tu telefono" placeholderTextColor={colors.subtle} style={styles.input} />
       <Pressable onPress={save} style={styles.goldButton}><Text style={styles.goldButtonText}>Guardar cambios</Text></Pressable>
-      <Pressable onPress={() => void vm.signOut()} style={styles.logout}><Text style={styles.cancelText}>Cerrar sesion</Text></Pressable>
+      <Pressable onPress={signOut} style={styles.logout}><Text style={styles.cancelText}>Cerrar sesion</Text></Pressable>
     </>
   );
 }

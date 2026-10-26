@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppScreen } from '../navigation';
 import { colors, styles } from '../theme/styles';
 
@@ -11,8 +12,11 @@ const items = [
 ] as const;
 
 export function BottomNav({ current, onNavigate }: { current: AppScreen; onNavigate: (screen: AppScreen) => void }) {
+  // Deja espacio para la barra de navegacion de Android o el indicador de inicio de iOS.
+  const { bottom } = useSafeAreaInsets();
+
   return (
-    <View style={styles.nav}>
+    <View style={[styles.nav, { paddingBottom: 8 + bottom }]}>
       {items.map(({ target, label, activeIcon, inactiveIcon }) => {
         const active = current === target;
 

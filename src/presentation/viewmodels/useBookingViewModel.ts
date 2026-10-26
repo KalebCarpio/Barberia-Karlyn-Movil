@@ -4,7 +4,7 @@ import { repositories } from '../../data/repositories';
 import { AppointmentRepository } from '../../data/repositories/AppointmentRepository';
 import { AvailabilityRepository } from '../../data/repositories/AvailabilityRepository';
 import { CatalogRepository } from '../../data/repositories/CatalogRepository';
-import { bookingDates, dateKey, hasAvailableSlot } from '../../domain/availability';
+import { bookingDates, dateKey, displayDate, hasAvailableSlot } from '../../domain/availability';
 import { Appointment, Barber, Branch, Service, Slot } from '../../domain/models';
 import { FALLBACK_SERVICES } from './useCatalogViewModel';
 import { ActionResult, errorMessage } from './types';
@@ -130,9 +130,20 @@ export function useBookingViewModel(
           time: selectedTime,
         });
       }
-      const title = editingAppointment ? 'Cita reprogramada' : 'Cita confirmada';
+      const result: ActionResult = {
+        ok: true,
+        title: editingAppointment ? '¡Cita reprogramada!' : '¡Cita confirmada!',
+        message: editingAppointment ? 'Actualizamos tu cita con el nuevo horario.' : 'Te esperamos en Carlyn. Llega 5 minutos antes.',
+        details: [
+          { label: 'Servicio', value: service.name },
+          { label: 'Fecha', value: displayDate(selectedDate) },
+          { label: 'Hora', value: selectedTime },
+          { label: 'Barbero', value: currentBarber?.name || 'Asignado' },
+          { label: 'Sucursal', value: currentBranch?.name || 'Carlyn' },
+        ],
+      };
       setEditingAppointment(null);
-      return { ok: true, title, message: 'Tu cita fue guardada en el sistema de Carlyn.' };
+      return result;
     } catch (error) {
       return { ok: false, title: 'No fue posible guardar la cita', message: errorMessage(error, 'Intenta nuevamente.') };
     } finally {

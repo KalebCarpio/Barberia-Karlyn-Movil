@@ -70,7 +70,7 @@ describe('useBookingViewModel', () => {
   it('crea la cita con los datos seleccionados', async () => {
     const { result, appointments } = await readyBooking(services[1]);
     await act(async () => result.current.setSelectedTime('09:40'));
-    expect(await confirm(result)).toMatchObject({ ok: true, title: 'Cita confirmada' });
+    expect(await confirm(result)).toMatchObject({ ok: true, title: '¡Cita confirmada!' });
     expect(appointments.create).toHaveBeenCalledWith({
       barberId: 34, serviceId: 12, branchId: 1, date: result.current.selectedDate, time: '09:40',
     });
@@ -84,7 +84,7 @@ describe('useBookingViewModel', () => {
     const { result, appointments } = await readyBooking(existing.service, existing);
     expect(result.current.editingAppointment?.id).toBe(7);
     await act(async () => result.current.setSelectedTime('09:40'));
-    expect(await confirm(result)).toMatchObject({ ok: true, title: 'Cita reprogramada' });
+    expect(await confirm(result)).toMatchObject({ ok: true, title: '¡Cita reprogramada!' });
     expect(appointments.reschedule).toHaveBeenCalledWith(7, existing.date, '09:40');
     expect(appointments.create).not.toHaveBeenCalled();
   });

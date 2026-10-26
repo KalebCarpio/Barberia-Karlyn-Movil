@@ -16,8 +16,6 @@ export const colors = {
 
 export const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.canvas },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.canvas },
-  loadingText: { marginTop: 12, color: colors.ink, fontWeight: '700' },
   page: { padding: 20, paddingBottom: 112 },
   login: { flexGrow: 1, padding: 28, justifyContent: 'center', backgroundColor: colors.canvas },
   header: { marginBottom: 20 },
