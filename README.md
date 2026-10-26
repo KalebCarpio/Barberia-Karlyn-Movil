@@ -1,5 +1,7 @@
 # Barbería Carlyn — aplicación móvil administrativa
 
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/KalebCarpio/Barberia-Karlyn-Movil)
+
 Repositorio de la aplicación móvil de **Barbería Carlyn**, enfocada en que el administrador consulte y gestione las citas del negocio. El identificador técnico del repositorio conserva la grafía `Barberia-Karlyn-Movil`; el nombre del negocio en la documentación es **Barbería Carlyn**.
 
 > **Estado del proyecto:** base inicial de Expo + React Native + TypeScript publicada. La pantalla de inicio confirma la configuración; las funcionalidades de citas y la integración REST API siguen pendientes.
