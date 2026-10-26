@@ -1,7 +1,7 @@
 # Registro de pruebas: catálogo y disponibilidad
 
 Issues: [#53 CAT-01](https://github.com/KalebCarpio/Barberia-Karlyn-Movil/issues/53), [#54 CAT-02](https://github.com/KalebCarpio/Barberia-Karlyn-Movil/issues/54) y [#68 AVAIL-01](https://github.com/KalebCarpio/Barberia-Karlyn-Movil/issues/68).
-Responsable: Javier Flores Hernández. Fecha de ejecución: 25 de octubre de 2026.
+Responsable: Javier Flores Hernández. Fechas de ejecución: 25 y 26 de octubre de 2026.
 
 ## Cómo se prueba
 
@@ -11,7 +11,7 @@ Responsable: Javier Flores Hernández. Fecha de ejecución: 25 de octubre de 202
 | Integración REST API (simulada) | Jest con `fetch` simulado | `npm run test:integration` | Local y GitHub Actions (`Quality`) |
 | Integración REST API (staging) | `curl` contra Render | Manual | `https://barberia-carlyn-backend.onrender.com` |
 
-Los datos de prueba están en `__tests__/fixtures/` y reproducen la forma de las respuestas reales del backend:
+Los datos de prueba están en `test/fixtures/` y reproducen la forma de las respuestas reales del backend:
 
 | Archivo | Endpoint que representa | Casos que cubre |
 | --- | --- | --- |
@@ -59,7 +59,25 @@ Los datos de prueba están en `__tests__/fixtures/` y reproducen la forma de las
 | AVAIL-I7 | #68 | Integración | Fecha inválida | HTTP 400 | Mensaje `fecha inválida` | Pasa |
 | AVAIL-I8 | #68 | Integración | Sin conexión | Falla de red | Se propaga `Network request failed` | Pasa |
 
-Resumen: 4 suites, 33 pruebas, 33 aprobadas.
+### Casos de ViewModels (caja blanca, con Repositories falsos)
+
+| ID | Issue | Caso | Datos | Resultado esperado | Resultado |
+| --- | --- | --- | --- | --- | --- |
+| CAT01-V1 | #53 | Cargar catálogo | 2 servicios falsos | Servicios y categorías `Todos`, `Paquetes`, `Cortes` | Pasa |
+| CAT01-V2 | #53 | Elegir categoría | `Cortes` | Solo el servicio 12 | Pasa |
+| CAT01-V3 | #53 | API caída | Repositorio que falla | Servicios de ejemplo y mensaje de error | Pasa |
+| CAT01-V4 | #53 | Catálogo vacío | Lista vacía | Aviso "El catalogo no contiene servicios disponibles." | Pasa |
+| CAT02-V1 | #54 | Sucursal sin barberos | Lista vacía | Aviso "Esta sucursal aun no tiene barberos disponibles." | Pasa |
+| AVAIL-V1 | #68 | Abrir reserva | Sucursal 1, barbero 34 | Selecciona la primera sucursal y barbero y consulta sus horarios | Pasa |
+| AVAIL-V2 | #68 | Día sin disponibilidad | Mañana bloqueado | Ese día aparece deshabilitado | Pasa |
+| AVAIL-V3 | #68 | Reservar sin horario | Sin horario elegido | Pide completar la reserva y no llama a la API | Pasa |
+| MGMT-V1 | #59 | Crear cita | Servicio 12, 09:40 | Envía barbero, servicio, sucursal, fecha y hora | Pasa |
+| MGMT-V2 | #59 | Reprogramar cita | Cita 7 → 09:40 | Llama a reprogramar, no crea otra cita | Pasa |
+| MGMT-V3 | #59 | Error al guardar | API responde "Horario no disponible" | Muestra el mensaje de la API | Pasa |
+
+Las demás pruebas cubren la arquitectura: `ApiClient` (Singleton y token Bearer), `SessionStore` (Observer), `ModelFactory` (Factory) y `AppointmentRepository` (listar, crear, reprogramar, conflicto y cancelar).
+
+Resumen: 10 suites, 64 pruebas (40 unitarias y 24 de integración), 64 aprobadas.
 
 ## Verificación contra el entorno de pruebas (Render)
 

@@ -65,20 +65,30 @@ El workflow `Quality` en `.github/workflows/quality.yml` ejecuta `npm ci`, `npm 
 
 ## Estructura del repositorio
 
-La base publicada contiene:
+La app sigue **MVVM** sobre capas de **Clean Architecture** y aplica los patrones **Singleton**, **Factory**, **Repository** y **Observer**. El detalle está en [`docs/arquitectura.md`](docs/arquitectura.md).
 
 ```text
-App.tsx            Pantalla inicial de la aplicación
-index.js           Registro del componente principal en Expo
-app.json           Nombre y configuración de Expo
-package.json       Dependencias y scripts
-package-lock.json  Versiones resueltas de dependencias
-tsconfig.json       Configuración de TypeScript
-.gitignore         Exclusión de archivos locales y generados
-README.md          Documentación del proyecto
+App.tsx                     Raíz: crea los ViewModels y elige la pantalla
+src/
+  domain/                   Modelos y reglas puras (catálogo, fechas y horarios)
+  core/
+    http/ApiClient.ts       Cliente REST (Singleton) con autenticación Bearer
+    state/                  Observable y SessionStore (Observer)
+  data/
+    factories/              ModelFactory (Factory): respuestas de la API → modelos
+    repositories/           Repositories: catálogo, disponibilidad, citas y autenticación
+    storage/                Sesión cifrada con expo-secure-store
+  presentation/
+    viewmodels/             ViewModels (hooks) por pantalla
+    screens/                Vistas: login, inicio, servicios, reserva, citas y perfil
+    components/             Componentes reutilizables
+    theme/                  Colores y estilos
+test/
+  fixtures/                 Datos de prueba con la forma real de la REST API
+  unit/                     Pruebas de caja blanca por capa
+  integration/              Repositories contra la REST API simulada
+docs/                       Arquitectura y registro de pruebas
 ```
-
-La navegación, el cliente HTTP y la estructura funcional se incorporarán cuando se implementen los Issues correspondientes.
 
 ## Organización del trabajo
 
@@ -166,9 +176,9 @@ npx expo-doctor
 
 | Carpeta | Tipo de prueba | Contenido |
 | --- | --- | --- |
-| `__tests__/fixtures/` | Datos de prueba | Respuestas de la REST API con la misma forma que el backend real: servicios, sucursales, barberos, fechas y horarios |
-| `__tests__/unit/` | Unitarias | Transformación de datos, filtros por categoría, fechas reservables y normalización de horarios, sin red |
-| `__tests__/integration/` | Integración REST API | Endpoint consultado, token enviado, respuesta con datos, respuesta vacía, error de API y falla de red, con `fetch` simulado |
+| `test/fixtures/` | Datos de prueba | Respuestas de la REST API con la misma forma que el backend real: servicios, sucursales, barberos, fechas y horarios |
+| `test/unit/` | Unitarias (caja blanca) | Reglas de dominio, ApiClient (Singleton), SessionStore (Observer), ModelFactory (Factory) y ViewModels con Repositories falsos, sin red (40 pruebas) |
+| `test/integration/` | Integración REST API | Repositories: endpoint, token, respuesta con datos, respuesta vacía, error de API y falla de red, con `fetch` simulado (24 pruebas) |
 
 Los casos, datos usados y resultados de cada Issue se registran en [`docs/pruebas/catalogo-y-disponibilidad.md`](docs/pruebas/catalogo-y-disponibilidad.md).
 
