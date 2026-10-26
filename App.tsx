@@ -447,18 +447,46 @@ export default function App() {
     </View>
   );
 
-  const nav = () => (
-    <View style={styles.nav}>
-      {([
-        ['home', 'Inicio'], ['services', 'Servicios'], ['appointments', 'Mis citas'], ['profile', 'Perfil'],
-      ] as [Screen, string][]).map(([target, label]) => (
-        <Pressable key={target} onPress={() => setScreen(target)} style={styles.navItem}>
-          <View style={[styles.navDot, screen === target && styles.navDotSelected]} />
-          <Text style={[styles.navText, screen === target && styles.navTextSelected]}>{label}</Text>
-        </Pressable>
-      ))}
-    </View>
-  );
+  const nav = () => {
+    const items = [
+      { target: 'home', label: 'Inicio', activeIcon: 'home', inactiveIcon: 'home-outline' },
+      { target: 'services', label: 'Servicios', activeIcon: 'construct', inactiveIcon: 'construct-outline' },
+      { target: 'appointments', label: 'Mis citas', activeIcon: 'calendar', inactiveIcon: 'calendar-outline' },
+      { target: 'profile', label: 'Perfil', activeIcon: 'person', inactiveIcon: 'person-outline' },
+    ] as const;
+
+    return (
+      <View style={styles.nav}>
+        {items.map(({ target, label, activeIcon, inactiveIcon }) => {
+          const active = screen === target;
+
+          return (
+            <Pressable
+              key={target}
+              accessibilityRole="button"
+              accessibilityLabel={label}
+              accessibilityState={{ selected: active }}
+              onPress={() => setScreen(target)}
+              style={({ pressed }) => [
+                styles.navItem,
+                active && styles.navItemSelected,
+                pressed && styles.navItemPressed,
+              ]}
+            >
+              <View style={[styles.navIcon, active && styles.navIconSelected]}>
+                <Ionicons
+                  name={(active ? activeIcon : inactiveIcon) as keyof typeof Ionicons.glyphMap}
+                  size={22}
+                  color={active ? colors.gold : colors.subtle}
+                />
+              </View>
+              <Text style={[styles.navText, active && styles.navTextSelected]}>{label}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
+    );
+  };
 
   const renderHome = () => (
     <>
@@ -719,10 +747,38 @@ const styles = StyleSheet.create({
   googleButton: { height: 50, borderRadius: 10, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.paper, marginTop: 16 },
   googleText: { color: colors.ink, fontSize: 14, fontWeight: '800' },
   registerText: { textAlign: 'center', color: colors.muted, fontSize: 13, marginTop: 23 },
-  nav: { height: 74, flexDirection: 'row', paddingTop: 10, borderTopWidth: 1, borderColor: colors.border, backgroundColor: colors.paper },
-  navItem: { flex: 1, alignItems: 'center' },
-  navDot: { width: 25, height: 3, borderRadius: 2, backgroundColor: 'transparent', marginBottom: 7 },
-  navDotSelected: { backgroundColor: colors.gold },
+  nav: {
+    minHeight: 80,
+    flexDirection: 'row',
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    borderTopWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.paper,
+    shadowColor: '#151515',
+    shadowOpacity: 0.08,
+    shadowOffset: { width: 0, height: -3 },
+    shadowRadius: 10,
+    elevation: 10,
+  },
+  navItem: {
+    flex: 1,
+    minHeight: 62,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    borderRadius: 14,
+  },
+  navItemSelected: { backgroundColor: '#fbf0d6' },
+  navItemPressed: { opacity: 0.72 },
+  navIcon: {
+    width: 34,
+    height: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+  },
+  navIconSelected: { backgroundColor: '#f6e2af' },
   navText: { color: colors.subtle, fontSize: 11, fontWeight: '800' },
   navTextSelected: { color: colors.ink },
 });
