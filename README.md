@@ -61,7 +61,19 @@ npm run typecheck  # comprobar tipos de TypeScript
 npm test           # pruebas unitarias e integración (Jest)
 ```
 
-El workflow `Quality` en `.github/workflows/quality.yml` ejecuta `npm ci`, `npm run typecheck`, las pruebas unitarias, las pruebas de integración REST API y Expo Doctor en Pull Requests hacia `develop` y `main`, y en cambios enviados a ambas ramas. Todavía no hay lint ni comprobación de formato. TEST-01 contempla regresión funcional y UAT; TEST-02, integración REST API y pruebas móviles.
+El workflow `Quality` en `.github/workflows/quality.yml` se ejecuta en Pull Requests hacia `develop` y `main`, y en cambios enviados a ambas ramas, con dos jobs en orden:
+
+1. **SAST (Semgrep)**, antes de compilar: analiza el código con las reglas de JavaScript/TypeScript, React, secretos expuestos y OWASP Top 10. Si hay hallazgos críticos (`ERROR`) el pipeline se detiene y no se ejecuta el siguiente job. El resultado aparece en el resumen de la ejecución y en la pestaña **Security** del repositorio.
+2. **TypeScript and Expo checks**: `npm ci`, `npm run typecheck`, pruebas unitarias, pruebas de integración REST API y Expo Doctor.
+
+Las acciones de GitHub se fijan por hash de commit. Para correr el análisis en local:
+
+```bash
+pip install semgrep
+semgrep scan --config p/javascript --config p/typescript --config p/react --config p/secrets --config p/owasp-top-ten --exclude node_modules --exclude dist --metrics=off
+```
+
+Todavía no hay lint ni comprobación de formato. TEST-01 contempla regresión funcional y UAT; TEST-02, integración REST API y pruebas móviles.
 
 ## Estructura del repositorio
 
