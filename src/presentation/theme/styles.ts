@@ -114,6 +114,7 @@ export const styles = StyleSheet.create({
   dividerLine: { height: 1, flex: 1, backgroundColor: colors.border },
   dividerText: { color: colors.subtle, fontSize: 12 },
   googleButton: { height: 50, borderRadius: 10, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.paper, marginTop: 16 },
+  googleContent: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   googleText: { color: colors.ink, fontSize: 14, fontWeight: '800' },
   registerText: { textAlign: 'center', color: colors.muted, fontSize: 13, marginTop: 23 },
   nav: {

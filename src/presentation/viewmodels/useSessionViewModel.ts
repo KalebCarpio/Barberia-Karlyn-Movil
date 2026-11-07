@@ -1,13 +1,18 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import { sessionStore } from '../../core/state/sessionStore';
 import { repositories } from '../../data/repositories';
+import { GoogleAuthProvider, nativeGoogleAuth } from '../../data/google/googleSignIn';
 import { AuthRepository } from '../../data/repositories/AuthRepository';
 import { secureSessionStorage, SessionStorage } from '../../data/storage/sessionStorage';
 import { UserProfile } from '../../domain/models';
 import { ActionResult, errorMessage } from './types';
 
 // ViewModel de sesion y perfil: login, restauracion de sesion guardada, edicion de perfil y cierre.
-export function useSessionViewModel(auth: AuthRepository = repositories.auth, storage: SessionStorage = secureSessionStorage) {
+export function useSessionViewModel(
+  auth: AuthRepository = repositories.auth,
+  storage: SessionStorage = secureSessionStorage,
+  google: GoogleAuthProvider = nativeGoogleAuth,
+) {
   const session = useSyncExternalStore(sessionStore.subscribe, sessionStore.getState);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,6 +20,7 @@ export function useSessionViewModel(auth: AuthRepository = repositories.auth, st
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [loadingLogin, setLoadingLogin] = useState(false);
+  const [loadingGoogle, setLoadingGoogle] = useState(false);
 
   const applyUser = (user: UserProfile) => {
     setEmail(user.email);
@@ -61,6 +67,24 @@ export function useSessionViewModel(auth: AuthRepository = repositories.auth, st
     }
   };
 
+  const signInWithGoogle = async (): Promise<ActionResult | null> => {
+    setLoadingGoogle(true);
+    try {
+      const googleToken = await google.getAccessToken();
+      if (!googleToken) return null;
+      const { token, user } = await auth.loginWithGoogle(googleToken);
+      await storage.save({ token, email: user.email });
+      applyUser(user);
+      setPassword('');
+      sessionStore.signIn(token, user);
+      return null;
+    } catch (error) {
+      return { ok: false, title: 'No fue posible entrar con Google', message: errorMessage(error, 'Intenta nuevamente.') };
+    } finally {
+      setLoadingGoogle(false);
+    }
+  };
+
   const saveProfile = async (): Promise<ActionResult | null> => {
     if (!session.token) return null;
     try {
@@ -76,6 +100,7 @@ export function useSessionViewModel(auth: AuthRepository = repositories.auth, st
 
   const signOut = async () => {
     await storage.clear();
+    await google.signOut();
     setPassword('');
     sessionStore.signOut();
   };
@@ -94,7 +119,9 @@ export function useSessionViewModel(auth: AuthRepository = repositories.auth, st
     phone,
     setPhone,
     loadingLogin,
+    loadingGoogle,
     signIn,
+    signInWithGoogle,
     saveProfile,
     signOut,
   };

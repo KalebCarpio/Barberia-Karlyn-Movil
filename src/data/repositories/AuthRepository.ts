@@ -7,6 +7,7 @@ export type LoginResult = { token: string; user: UserProfile };
 
 export interface AuthRepository {
   login(email: string, password: string): Promise<LoginResult>;
+  loginWithGoogle(googleAccessToken: string): Promise<LoginResult>;
   getProfile(token: string, fallbackEmail: string): Promise<UserProfile>;
   updateProfile(name: string, phone: string): Promise<UserProfile>;
 }
@@ -26,6 +27,18 @@ export class ApiAuthRepository implements AuthRepository {
     const token = String(response.token || '');
     if (!token) throw new Error('El servidor no devolvio una sesion valida.');
     return { token, user: ModelFactory.createUser((response.user || {}) as ApiRecord, email) };
+  }
+
+  // El backend consulta el perfil en Google con el access token y crea la cuenta si no existe.
+  async loginWithGoogle(googleAccessToken: string) {
+    const response = await this.client.request<ApiRecord>('/auth/google', {
+      method: 'POST',
+      body: { googleToken: googleAccessToken },
+    });
+    const token = String(response.token || '');
+    if (!token) throw new Error('El servidor no devolvio una sesion valida.');
+    const user = (response.user || {}) as ApiRecord;
+    return { token, user: ModelFactory.createUser(user, String(user.email || '')) };
   }
 
   async getProfile(token: string, fallbackEmail: string) {

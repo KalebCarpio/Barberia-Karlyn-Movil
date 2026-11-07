@@ -61,3 +61,22 @@ describe('Recuperacion de contrasena', () => {
     expect(sent(fetchMock)).toMatchObject({ url: `${API_URL}/api/auth/reset-password`, body: { correoElectronico: 'javier@correo.com', newPassword: 'nueva123' } });
   });
 });
+
+describe('Inicio de sesion con Google', () => {
+  const { auth } = createRepositories();
+
+  it('envia el access token de Google y devuelve la sesion del backend', async () => {
+    const fetchMock = mockFetchResponse({
+      token: 'jwt-carlyn',
+      user: { nombre: 'Javier Flores', email: 'javier@gmail.com', telefono: null },
+    });
+    const result = await auth.loginWithGoogle('ya29.token-google');
+    expect(sent(fetchMock)).toEqual({ url: `${API_URL}/api/auth/google`, method: 'POST', body: { googleToken: 'ya29.token-google' } });
+    expect(result).toEqual({ token: 'jwt-carlyn', user: { name: 'Javier Flores', email: 'javier@gmail.com', phone: '' } });
+  });
+
+  it('rechaza una respuesta sin token de sesion', async () => {
+    mockFetchResponse({ message: 'ok' });
+    await expect(auth.loginWithGoogle('ya29.token-google')).rejects.toThrow('El servidor no devolvio una sesion valida.');
+  });
+});
