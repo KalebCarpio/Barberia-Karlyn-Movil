@@ -1,15 +1,18 @@
 {
   "expo": {
-    "name": "carlyn-mobile",
+    "name": "Carlyn",
     "slug": "carlyn-mobile",
     "version": "1.0.0",
+    "scheme": "carlyn",
     "orientation": "portrait",
     "icon": "./assets/app-icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.barberiacarlyn.app"
     },
     "android": {
+      "package": "com.barberiacarlyn.app",
       "adaptiveIcon": {
         "backgroundColor": "#F7F3EC",
         "foregroundImage": "./assets/app-icon.png"
@@ -22,7 +25,8 @@
     "plugins": [
       "expo-secure-store",
       "expo-font",
-      "expo-status-bar"
+      "expo-status-bar",
+      "@react-native-google-signin/google-signin"
     ]
   }
 }
