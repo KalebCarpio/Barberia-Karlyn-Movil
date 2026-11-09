@@ -2,10 +2,12 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { BackHandler, ScrollView } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { enableCertificatePinning, onPinningError } from './src/core/security/certificatePinning';
 import { Appointment, Service } from './src/domain/models';
 import { BottomNav } from './src/presentation/components/BottomNav';
 import { LoadingOverlay } from './src/presentation/components/FeedbackDialog';
 import { SplashLoader } from './src/presentation/components/Loaders';
+import { askReminderPermission } from './src/presentation/feedback/askReminderPermission';
 import { DialogProvider, useDialog } from './src/presentation/feedback/DialogProvider';
 import { AppScreen, AuthScreen } from './src/presentation/navigation';
 import { AppointmentsScreen } from './src/presentation/screens/AppointmentsScreen';
@@ -25,14 +27,24 @@ import { useCatalogViewModel } from './src/presentation/viewmodels/useCatalogVie
 import { usePrivacyViewModel } from './src/presentation/viewmodels/usePrivacyViewModel';
 import { useRecoveryViewModel } from './src/presentation/viewmodels/useRecoveryViewModel';
 import { useRegisterViewModel } from './src/presentation/viewmodels/useRegisterViewModel';
+import { useRemindersViewModel } from './src/presentation/viewmodels/useRemindersViewModel';
 import { useSessionViewModel } from './src/presentation/viewmodels/useSessionViewModel';
 
 export default function App() {
+  // El Certificate Pinning se activa antes de montar la app, para que ninguna peticion salga sin el.
+  const [secured, setSecured] = useState(false);
+
+  useEffect(() => {
+    enableCertificatePinning()
+      .catch((error) => console.warn('No fue posible activar el Certificate Pinning:', error))
+      .finally(() => setSecured(true));
+  }, []);
+
   return (
     <SafeAreaProvider>
       <DialogProvider>
         <StatusBar style="dark" />
-        <CarlynApp />
+        {secured ? <CarlynApp /> : <SplashLoader />}
       </DialogProvider>
     </SafeAreaProvider>
   );
@@ -50,6 +62,12 @@ function CarlynApp() {
   const register = useRegisterViewModel();
   const recovery = useRecoveryViewModel();
   const privacy = usePrivacyViewModel(session.token, session.signOut);
+  const reminders = useRemindersViewModel(appointments.appointments, privacy.settings?.reminders ?? false);
+
+  // Si el servidor no presenta una llave fijada, la conexion se bloquea y se avisa al usuario.
+  useEffect(() => onPinningError(() => {
+    void dialog.notify({ ok: false, title: 'Conexion no segura', message: 'No pudimos verificar la identidad del servidor de Carlyn. Revisa tu red Wi-Fi e intenta de nuevo.' });
+  }), [dialog]);
 
   useEffect(() => {
     if (session.status === 'signedIn') setScreen('home');
@@ -84,6 +102,7 @@ function CarlynApp() {
       setScreen('appointments');
     }
     await dialog.notify(result);
+    if (result.ok && reminders.shouldOffer) await askReminderPermission(reminders, dialog);
   };
 
   if (session.status === 'checking') return <SplashLoader />;
@@ -111,7 +130,7 @@ function CarlynApp() {
   if (screen === 'booking') view = <BookingScreen vm={booking} onConfirm={confirmBooking} />;
   if (screen === 'appointments') view = <AppointmentsScreen vm={appointments} onReschedule={(appointment) => beginBooking(appointment.service, appointment)} onBookAnother={() => setScreen('services')} />;
   if (screen === 'profile') view = <ProfileScreen vm={session} onOpenPrivacy={() => setScreen('privacy')} />;
-  if (screen === 'privacy') view = <PrivacyScreen vm={privacy} profile={{ name: session.name, email: session.email, phone: session.phone }} appointmentCount={appointments.appointments.length} onEditProfile={() => setScreen('profile')} onBack={() => setScreen('profile')} />;
+  if (screen === 'privacy') view = <PrivacyScreen vm={privacy} onRemindersEnabled={() => askReminderPermission(reminders, dialog)} profile={{ name: session.name, email: session.email, phone: session.phone }} appointmentCount={appointments.appointments.length} onEditProfile={() => setScreen('profile')} onBack={() => setScreen('profile')} />;
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>

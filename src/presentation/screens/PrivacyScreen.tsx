@@ -12,6 +12,8 @@ type Props = {
   appointmentCount: number;
   onEditProfile: () => void;
   onBack: () => void;
+  // Al activar recordatorios se pide (a demanda) el permiso de notificaciones del telefono.
+  onRemindersEnabled: () => Promise<boolean>;
 };
 
 function formatAcceptedAt(value: string) {
@@ -34,12 +36,13 @@ function Section({ icon, title, subtitle, children }: { icon: keyof typeof Ionic
 }
 
 // Derechos ARCO: Acceso (mis datos), Rectificacion (editar perfil), Oposicion (switches) y Cancelacion (eliminar cuenta).
-export function PrivacyScreen({ vm, profile, appointmentCount, onEditProfile, onBack }: Props) {
+export function PrivacyScreen({ vm, profile, appointmentCount, onEditProfile, onBack, onRemindersEnabled }: Props) {
   const dialog = useDialog();
 
   const toggle = async (key: (typeof PRIVACY_PREFERENCES)[number]['key'], enabled: boolean) => {
     const result = await vm.setPreference(key, enabled);
     if (result) await dialog.notify(result);
+    else if (key === 'reminders' && enabled) await onRemindersEnabled();
   };
 
   const deleteAccount = async () => {
