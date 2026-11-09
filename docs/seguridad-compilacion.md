@@ -43,7 +43,7 @@ Configuración en `app.json` con `expo-build-properties`; EAS la aplica al gener
 
 Verificado con `npx expo prebuild --platform android`: el `build.gradle` generado usa `minifyEnabled enableMinifyInReleaseBuilds` con `proguard-android-optimize.txt` y `proguard-rules.pro`.
 
-**Pendiente:** compilar la versión release (`eas build --profile preview`) y descompilar el APK con **JADX** o analizarlo con **MobSF** para el reporte anti-descompilación. El código Java/Kotlin queda con nombres ofuscados; el JavaScript va como bytecode de **Hermes** (`index.android.bundle`), no como texto legible.
+**Resultado en el APK de release:** 78 % de las clases ofuscadas y recursos renombrados, JavaScript como bytecode de Hermes y sin secretos. Ver [`docs/reporte-ofuscacion-apk.md`](reporte-ofuscacion-apk.md).
 
 ## 3. Permisos de Android
 
@@ -64,7 +64,7 @@ La app **no usa** cámara, ubicación, contactos ni almacenamiento.
 
 Si el permiso se negó de forma permanente, la app ofrece **"Abrir Ajustes"**. La oposición "Recordatorios de citas" de Privacidad **cancela** todos los recordatorios programados.
 
-La lista final de permisos del APK compilado se confirmará en el reporte de MobSF.
+La lista final de permisos del APK compilado, y los que agregan las librerías y se bloquearon, está en [`docs/reporte-ofuscacion-apk.md`](reporte-ofuscacion-apk.md).
 
 ## Pruebas automatizadas
 
