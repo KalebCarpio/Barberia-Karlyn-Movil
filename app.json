@@ -17,7 +17,13 @@
         "backgroundColor": "#F7F3EC",
         "foregroundImage": "./assets/app-icon.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "blockedPermissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/app-icon.png"
@@ -26,7 +32,23 @@
       "expo-secure-store",
       "expo-font",
       "expo-status-bar",
-      "@react-native-google-signin/google-signin"
+      "@react-native-google-signin/google-signin",
+      [
+        "expo-notifications",
+        {
+          "color": "#C68F00"
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableMinifyInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "extraProguardRules": "# Certificate Pinning: conservar el modulo nativo que configura OkHttp\n-keep class com.sslpublickeypinning.** { *; }\n# Google Sign-In\n-keep class com.reactnativegooglesignin.** { *; }"
+          }
+        }
+      ]
     ],
     "extra": {
       "eas": {
