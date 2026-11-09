@@ -4,6 +4,7 @@ import { ApiAppointmentRepository, AppointmentRepository } from './AppointmentRe
 import { ApiAuthRepository, AuthRepository } from './AuthRepository';
 import { ApiAvailabilityRepository, AvailabilityRepository } from './AvailabilityRepository';
 import { ApiCatalogRepository, CatalogRepository } from './CatalogRepository';
+import { ApiPrivacyRepository, PrivacyRepository } from './PrivacyRepository';
 
 export type Repositories = {
   auth: AuthRepository;
@@ -11,6 +12,7 @@ export type Repositories = {
   catalog: CatalogRepository;
   availability: AvailabilityRepository;
   appointments: AppointmentRepository;
+  privacy: PrivacyRepository;
 };
 
 // Unico lugar donde se eligen las implementaciones; en pruebas se reemplazan por dobles.
@@ -21,6 +23,7 @@ export function createRepositories(client = ApiClient.getInstance()): Repositori
     catalog: new ApiCatalogRepository(client),
     availability: new ApiAvailabilityRepository(client),
     appointments: new ApiAppointmentRepository(client),
+    privacy: new ApiPrivacyRepository(client),
   };
 }
 
