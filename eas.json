@@ -12,7 +12,7 @@
       },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://barberia-carlyn-backend.onrender.com",
-        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "96794615283-7rirdmj84i343p903gmilur3lklnf6kq.apps.googleusercontent.com"
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "561130236050-lerqj97irbgjfqci81k0bsb8vice8s5v.apps.googleusercontent.com"
       }
     },
     "preview": {
@@ -22,14 +22,14 @@
       },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://barberia-carlyn-backend.onrender.com",
-        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "96794615283-7rirdmj84i343p903gmilur3lklnf6kq.apps.googleusercontent.com"
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "561130236050-lerqj97irbgjfqci81k0bsb8vice8s5v.apps.googleusercontent.com"
       }
     },
     "production": {
       "autoIncrement": true,
       "env": {
         "EXPO_PUBLIC_API_URL": "https://barberia-carlyn-backend.onrender.com",
-        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "96794615283-7rirdmj84i343p903gmilur3lklnf6kq.apps.googleusercontent.com"
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "561130236050-lerqj97irbgjfqci81k0bsb8vice8s5v.apps.googleusercontent.com"
       }
     }
   },
