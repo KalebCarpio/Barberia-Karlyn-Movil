@@ -23,6 +23,7 @@ const VALID = { name: 'Javier Flores', email: 'javier@correo.com', phone: '77124
 async function inCodeStep(account = fakeAccount()) {
   const { result } = await renderHook(() => useRegisterViewModel(account));
   await fill(result, VALID);
+  await act(async () => result.current.toggleAcceptsPrivacy());
   await call(() => result.current.submit());
   return { result, account };
 }
@@ -35,8 +36,21 @@ describe('useRegisterViewModel', () => {
     const { result } = await renderHook(() => useRegisterViewModel(account));
     await fill(result, { name: 'Jo', email: 'mal', phone: '12', password: '123', confirmPassword: '321' });
     expect(await call(() => result.current.submit())).toBeNull();
-    expect(Object.keys(result.current.errors).sort()).toEqual(['confirmPassword', 'email', 'name', 'password', 'phone']);
+    expect(Object.keys(result.current.errors).sort()).toEqual(['confirmPassword', 'email', 'name', 'password', 'phone', 'privacy']);
     expect(account.register).not.toHaveBeenCalled();
+  });
+
+  it('exige aceptar el Aviso de Privacidad aunque los demas datos esten bien', async () => {
+    const account = fakeAccount();
+    const { result } = await renderHook(() => useRegisterViewModel(account));
+    await fill(result, VALID);
+    expect(result.current.acceptsPrivacy).toBe(false);
+    expect(await call(() => result.current.submit())).toBeNull();
+    expect(result.current.errors).toEqual({ privacy: 'Para crear tu cuenta debes aceptar el Aviso de Privacidad.' });
+    expect(account.register).not.toHaveBeenCalled();
+
+    await act(async () => result.current.toggleAcceptsPrivacy());
+    expect(result.current.errors.privacy).toBeUndefined();
   });
 
   it('limpia el error de un campo al corregirlo', async () => {
@@ -59,6 +73,7 @@ describe('useRegisterViewModel', () => {
     const account = fakeAccount({ register: jest.fn().mockRejectedValue(new Error('Error al registrarse')) });
     const { result } = await renderHook(() => useRegisterViewModel(account));
     await fill(result, VALID);
+    await act(async () => result.current.toggleAcceptsPrivacy());
     expect(await call(() => result.current.submit())).toEqual({ ok: false, title: 'No fue posible crear la cuenta', message: 'Error al registrarse' });
     expect(result.current.step).toBe('form');
   });
@@ -67,7 +82,7 @@ describe('useRegisterViewModel', () => {
     const { result, account } = await inCodeStep();
     await fill(result, { code: '123456' });
     expect(await call(() => result.current.verify())).toMatchObject({ ok: true, title: '¡Cuenta creada!' });
-    expect(account.verifyRegistration).toHaveBeenCalledWith('javier@correo.com', '123456');
+    expect(account.verifyRegistration).toHaveBeenCalledWith('javier@correo.com', '123456', true);
   });
 
   it('rechaza un codigo incompleto sin llamar a la API', async () => {

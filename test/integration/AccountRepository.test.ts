@@ -24,13 +24,13 @@ describe('Registro', () => {
 
   it('verifica el codigo de registro', async () => {
     const fetchMock = mockFetchResponse({ message: 'Cuenta creada exitosamente.' });
-    await account.verifyRegistration('javier@correo.com', ' 123456 ');
-    expect(sent(fetchMock)).toMatchObject({ url: `${API_URL}/api/auth/verify-email`, body: { correoElectronico: 'javier@correo.com', code: '123456' } });
+    await account.verifyRegistration('javier@correo.com', ' 123456 ', true);
+    expect(sent(fetchMock)).toMatchObject({ url: `${API_URL}/api/auth/verify-email`, body: { correoElectronico: 'javier@correo.com', code: '123456', aceptaPrivacidad: true } });
   });
 
   it('propaga el codigo vencido que informa el backend', async () => {
     mockFetchResponse({ message: 'El código de verificación ha expirado' }, 400);
-    await expect(account.verifyRegistration('javier@correo.com', '123456')).rejects.toThrow('El código de verificación ha expirado');
+    await expect(account.verifyRegistration('javier@correo.com', '123456', true)).rejects.toThrow('El código de verificación ha expirado');
   });
 
   it('propaga el limite de reenvios del backend', async () => {
