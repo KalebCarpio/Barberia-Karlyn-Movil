@@ -130,6 +130,21 @@ export function TextLink({ label, onPress, disabled }: { label: string; onPress:
   );
 }
 
+// Casilla de aceptacion; empieza sin marcar para que el consentimiento sea explicito.
+export function ConsentCheckbox({ checked, onToggle, error, children }: { checked: boolean; onToggle: () => void; error?: string; children: ReactNode }) {
+  return (
+    <View style={forms.field}>
+      <Pressable onPress={onToggle} style={forms.consentRow} accessibilityRole="checkbox" accessibilityState={{ checked }}>
+        <View style={[forms.checkbox, checked && forms.checkboxChecked, error && !checked && forms.inputError]}>
+          {checked ? <Ionicons name="checkmark" size={16} color={colors.paper} /> : null}
+        </View>
+        <Text style={forms.consentText}>{children}</Text>
+      </Pressable>
+      {error ? <FieldError message={error} /> : null}
+    </View>
+  );
+}
+
 // Aviso con icono: vigencia del codigo o recomendaciones.
 export function Notice({ icon, text, tone = 'muted' }: { icon: keyof typeof Ionicons.glyphMap; text: string; tone?: 'muted' | 'danger' }) {
   const color = tone === 'danger' ? colors.red : colors.muted;
@@ -176,4 +191,8 @@ const forms = StyleSheet.create({
   linkDisabled: { color: colors.subtle },
   notice: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 14 },
   noticeText: { fontSize: 13, fontWeight: '600', flex: 1 },
+  consentRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginTop: 18 },
+  checkbox: { width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, borderColor: colors.subtle, backgroundColor: colors.paper, alignItems: 'center', justifyContent: 'center', marginTop: 1 },
+  checkboxChecked: { backgroundColor: colors.gold, borderColor: colors.gold },
+  consentText: { flex: 1, color: colors.ink, fontSize: 14, lineHeight: 21 },
 });

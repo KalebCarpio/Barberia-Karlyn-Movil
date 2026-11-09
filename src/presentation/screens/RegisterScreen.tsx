@@ -1,6 +1,7 @@
-import { Text, View } from 'react-native';
+import { Linking, Text, View } from 'react-native';
 import { formatCountdown } from '../../domain/account';
-import { AuthHeader, AuthLayout, CodeField, Notice, PasswordField, PrimaryButton, TextField, TextLink } from '../components/forms';
+import { PRIVACY_NOTICE_URL } from '../../domain/privacy';
+import { AuthHeader, AuthLayout, CodeField, ConsentCheckbox, Notice, PasswordField, PrimaryButton, TextField, TextLink } from '../components/forms';
 import { useDialog } from '../feedback/DialogProvider';
 import { styles } from '../theme/styles';
 import { RegisterViewModel } from '../viewmodels/useRegisterViewModel';
@@ -62,6 +63,9 @@ export function RegisterScreen({ vm, onBack, onRegistered }: Props) {
       <TextField label="Telefono" icon="call-outline" value={form.phone} onChangeText={(value) => vm.setField('phone', value.replace(/\D/g, ''))} error={errors.phone} placeholder="10 digitos" keyboardType="phone-pad" maxLength={10} textContentType="telephoneNumber" />
       <PasswordField label="Contrasena" value={form.password} onChangeText={(value) => vm.setField('password', value)} error={errors.password} placeholder="Minimo 6 caracteres" visible={vm.passwordVisible} onToggle={vm.togglePasswordVisible} textContentType="newPassword" />
       <PasswordField label="Confirmar contrasena" value={form.confirmPassword} onChangeText={(value) => vm.setField('confirmPassword', value)} error={errors.confirmPassword} placeholder="Repite tu contrasena" visible={vm.passwordVisible} onToggle={vm.togglePasswordVisible} textContentType="newPassword" />
+      <ConsentCheckbox checked={vm.acceptsPrivacy} onToggle={vm.toggleAcceptsPrivacy} error={errors.privacy}>
+        He leido y acepto el <Text style={styles.link} onPress={() => void Linking.openURL(PRIVACY_NOTICE_URL)}>Aviso de Privacidad</Text> de Barberia Carlyn.
+      </ConsentCheckbox>
       <PrimaryButton label="Continuar" loading={vm.loading} onPress={submit} />
       <Text style={styles.registerText}>¿Ya tienes cuenta? <Text style={styles.link} onPress={onBack}>Inicia sesion</Text></Text>
     </AuthLayout>
