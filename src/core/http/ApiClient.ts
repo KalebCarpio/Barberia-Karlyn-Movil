@@ -11,6 +11,9 @@ export class ApiError extends Error {
   }
 }
 
+// Pide un token de acceso nuevo con el refresh token guardado; devuelve null si la sesion ya no se puede renovar.
+export type TokenRefresher = () => Promise<string | null>;
+
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
 export type RequestOptions = {
@@ -27,6 +30,11 @@ export class ApiClient {
 
   readonly baseUrl: string;
 
+  private refresher: TokenRefresher | null = null;
+
+  // Renovacion en curso: si varias peticiones reciben 401 al mismo tiempo, todas esperan la misma.
+  private refreshing: Promise<string | null> | null = null;
+
   private constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
   }
@@ -36,7 +44,35 @@ export class ApiClient {
     return ApiClient.instance;
   }
 
-  async request<T>(path: string, { method = 'GET', body, auth = false, token }: RequestOptions = {}): Promise<T> {
+  setTokenRefresher(refresher: TokenRefresher | null) {
+    this.refresher = refresher;
+  }
+
+  private refreshToken() {
+    if (!this.refresher) return Promise.resolve(null);
+    if (!this.refreshing) {
+      this.refreshing = this.refresher().finally(() => {
+        this.refreshing = null;
+      });
+    }
+    return this.refreshing;
+  }
+
+  async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+    try {
+      return await this.send<T>(path, options);
+    } catch (error) {
+      // Interceptor de 401: solo para peticiones con la sesion activa (no para login ni tokens explicitos).
+      const usesSession = options.auth && options.token === undefined && Boolean(sessionStore.getState().token);
+      if (!(error instanceof ApiError) || error.status !== 401 || !usesSession || !this.refresher) throw error;
+
+      const newToken = await this.refreshToken();
+      if (!newToken) throw new ApiError('Tu sesion expiro. Inicia sesion de nuevo.', 401);
+      return this.send<T>(path, { ...options, token: newToken });
+    }
+  }
+
+  private async send<T>(path: string, { method = 'GET', body, auth = false, token }: RequestOptions): Promise<T> {
     const bearer = token ?? (auth ? sessionStore.getState().token : null);
     const response = await fetch(`${this.baseUrl}/api${path}`, {
       method,

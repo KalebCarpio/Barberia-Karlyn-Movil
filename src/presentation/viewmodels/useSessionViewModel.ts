@@ -1,9 +1,11 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
+import { ApiClient, ApiError } from '../../core/http/ApiClient';
 import { sessionStore } from '../../core/state/sessionStore';
 import { repositories } from '../../data/repositories';
 import { GoogleAuthProvider, nativeGoogleAuth } from '../../data/google/googleSignIn';
 import { AuthRepository } from '../../data/repositories/AuthRepository';
 import { secureSessionStorage, SessionStorage } from '../../data/storage/sessionStorage';
+import { createTokenRefresher } from '../../data/storage/tokenRefresher';
 import { UserProfile } from '../../domain/models';
 import { ActionResult, errorMessage } from './types';
 
@@ -28,6 +30,13 @@ export function useSessionViewModel(
     setPhone(user.phone);
   };
 
+  // El ApiClient renueva el token con el refresh token cuando una peticion con sesion recibe 401.
+  useEffect(() => {
+    const client = ApiClient.getInstance();
+    client.setTokenRefresher(createTokenRefresher(auth, storage));
+    return () => client.setTokenRefresher(null);
+  }, [auth, storage]);
+
   useEffect(() => {
     const restoreSession = async () => {
       // Si el almacenamiento seguro no esta disponible (por ejemplo en web) se pide iniciar sesion.
@@ -37,9 +46,20 @@ export function useSessionViewModel(
         return;
       }
       try {
-        const user = await auth.getProfile(stored.token, stored.email);
+        let token = stored.token;
+        let user;
+        try {
+          user = await auth.getProfile(token, stored.email);
+        } catch (error) {
+          // Token guardado vencido: se renueva con el refresh token antes de pedir iniciar sesion.
+          if (!(error instanceof ApiError) || error.status !== 401) throw error;
+          const renewed = await createTokenRefresher(auth, storage)();
+          if (!renewed) return;
+          token = renewed;
+          user = await auth.getProfile(token, stored.email);
+        }
         applyUser(user);
-        sessionStore.signIn(stored.token, user);
+        sessionStore.signIn(token, user);
       } catch {
         await storage.clear();
         sessionStore.signOut();
@@ -54,8 +74,8 @@ export function useSessionViewModel(
     }
     setLoadingLogin(true);
     try {
-      const { token, user } = await auth.login(email.trim(), password);
-      await storage.save({ token, email: email.trim() });
+      const { token, refreshToken, user } = await auth.login(email.trim(), password);
+      await storage.save({ token, refreshToken, email: email.trim() });
       applyUser({ ...user, email: email.trim() });
       setPassword('');
       sessionStore.signIn(token, user);
@@ -72,8 +92,8 @@ export function useSessionViewModel(
     try {
       const googleToken = await google.getAccessToken();
       if (!googleToken) return null;
-      const { token, user } = await auth.loginWithGoogle(googleToken);
-      await storage.save({ token, email: user.email });
+      const { token, refreshToken, user } = await auth.loginWithGoogle(googleToken);
+      await storage.save({ token, refreshToken, email: user.email });
       applyUser(user);
       setPassword('');
       sessionStore.signIn(token, user);

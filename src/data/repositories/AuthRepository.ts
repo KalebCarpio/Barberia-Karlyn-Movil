@@ -3,11 +3,15 @@ import { UserProfile } from '../../domain/models';
 import { ApiRecord, pick } from '../factories/apiRecord';
 import { ModelFactory } from '../factories/ModelFactory';
 
-export type LoginResult = { token: string; user: UserProfile };
+const optionalString = (value: unknown) => (value ? String(value) : undefined);
+
+export type LoginResult = { token: string; refreshToken?: string; user: UserProfile };
+export type RefreshResult = { token: string; refreshToken: string };
 
 export interface AuthRepository {
   login(email: string, password: string): Promise<LoginResult>;
   loginWithGoogle(googleAccessToken: string): Promise<LoginResult>;
+  refresh(refreshToken: string): Promise<RefreshResult>;
   getProfile(token: string, fallbackEmail: string): Promise<UserProfile>;
   updateProfile(name: string, phone: string): Promise<UserProfile>;
 }
@@ -26,7 +30,7 @@ export class ApiAuthRepository implements AuthRepository {
     });
     const token = String(response.token || '');
     if (!token) throw new Error('El servidor no devolvio una sesion valida.');
-    return { token, user: ModelFactory.createUser((response.user || {}) as ApiRecord, email) };
+    return { token, refreshToken: optionalString(response.refreshToken), user: ModelFactory.createUser((response.user || {}) as ApiRecord, email) };
   }
 
   // El backend consulta el perfil en Google con el access token y crea la cuenta si no existe.
@@ -38,7 +42,16 @@ export class ApiAuthRepository implements AuthRepository {
     const token = String(response.token || '');
     if (!token) throw new Error('El servidor no devolvio una sesion valida.');
     const user = (response.user || {}) as ApiRecord;
-    return { token, user: ModelFactory.createUser(user, String(user.email || '')) };
+    return { token, refreshToken: optionalString(response.refreshToken), user: ModelFactory.createUser(user, String(user.email || '')) };
+  }
+
+  // Sin token de sesion: el refresh token es la credencial. El backend tambien rota el refresh token.
+  async refresh(refreshToken: string) {
+    const response = await this.client.request<ApiRecord>('/auth/refresh', { method: 'POST', body: { refreshToken } });
+    const token = String(response.token || '');
+    const nextRefreshToken = String(response.refreshToken || '');
+    if (!token || !nextRefreshToken) throw new Error('El servidor no devolvio una sesion valida.');
+    return { token, refreshToken: nextRefreshToken };
   }
 
   async getProfile(token: string, fallbackEmail: string) {
