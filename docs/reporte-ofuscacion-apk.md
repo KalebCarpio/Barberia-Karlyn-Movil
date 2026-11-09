@@ -83,6 +83,17 @@ Manifiesto final obtenido con `aapt2`:
 
 La app **no pide** cámara, ubicación, contactos, micrófono ni almacenamiento.
 
+**Verificación en la build siguiente** ([`3c3babce`](https://expo.dev/accounts/javi_10/projects/carlyn-mobile/builds/3c3babce-3800-45f4-84b5-02532373df12), commit `0ec0181`): el manifiesto pasó de **29 a 8 permisos**:
+
+| Permiso | Motivo |
+| --- | --- |
+| `INTERNET`, `ACCESS_NETWORK_STATE` | Conexión con la API |
+| `POST_NOTIFICATIONS` | Recordatorios de cita (único que se pide al usuario, a demanda) |
+| `RECEIVE_BOOT_COMPLETED`, `WAKE_LOCK`, `VIBRATE` | Mostrar los recordatorios y conservarlos al reiniciar |
+| `DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`, `BIND_GET_INSTALL_REFERRER_SERVICE` | Internos de AndroidX y Google Play; no requieren aprobación |
+
+La firma no cambió (SHA-1 `20:2D:2D:2B:CF:BC:78:D0:AD:86:C2:1E:B8:52:CD:F6:21:2A:B7:ED`), la misma registrada en el cliente Android de Google Cloud.
+
 ## Conclusión
 
 La versión release cumple el criterio: R8 ofusca y reduce el código nativo (78 % de las clases renombradas), `shrinkResources` reduce y renombra los recursos, el JavaScript va como bytecode de Hermes y **no hay secretos** en el paquete. Los permisos sobrantes que agregan las librerías quedan bloqueados para la build de producción.
