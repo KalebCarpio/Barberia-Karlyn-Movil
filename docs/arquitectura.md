@@ -49,6 +49,7 @@ BookingScreen ──acción──▶ useBookingViewModel ──▶ AvailabilityR
 - El token de sesión se guarda cifrado con `expo-secure-store` (Keychain en iOS y Keystore en Android), en `src/data/storage/sessionStorage.ts`.
 - Solo las solicitudes que lo requieren envían `Authorization: Bearer` (`auth: true` en el `ApiClient`).
 - Los errores de la API llegan como `ApiError` con su código HTTP.
+- **Certificate Pinning** (SHA-256) y **R8/ProGuard**: ver [`docs/seguridad-compilacion.md`](seguridad-compilacion.md).
 - **Interceptor de 401** en el `ApiClient`: renueva el token con el refresh token (cifrado) y repite la petición; ver [`docs/pruebas/sesion-y-refresh-token.md`](pruebas/sesion-y-refresh-token.md).
 
 ## Pruebas por capa
