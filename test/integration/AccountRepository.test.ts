@@ -80,3 +80,24 @@ describe('Inicio de sesion con Google', () => {
     await expect(auth.loginWithGoogle('ya29.token-google')).rejects.toThrow('El servidor no devolvio una sesion valida.');
   });
 });
+
+describe('Renovar sesion', () => {
+  const { auth } = createRepositories();
+
+  it('pide un token nuevo con el refresh token, sin enviar token de sesion', async () => {
+    const fetchMock = mockFetchResponse({ token: 'jwt-nuevo', refreshToken: 'refresh-nuevo' });
+    await expect(auth.refresh('refresh-viejo')).resolves.toEqual({ token: 'jwt-nuevo', refreshToken: 'refresh-nuevo' });
+    expect(sent(fetchMock)).toEqual({ url: `${API_URL}/api/auth/refresh`, method: 'POST', body: { refreshToken: 'refresh-viejo' } });
+    expect(requestOf(fetchMock).headers.Authorization).toBeUndefined();
+  });
+
+  it('propaga el rechazo cuando el refresh token vencio', async () => {
+    mockFetchResponse({ message: 'Tu sesion expiro. Inicia sesion de nuevo.' }, 401);
+    await expect(auth.refresh('refresh-vencido')).rejects.toThrow('Tu sesion expiro');
+  });
+
+  it('guarda el refresh token que devuelve el login', async () => {
+    mockFetchResponse({ token: 'jwt-carlyn', refreshToken: 'refresh-carlyn', user: { nombre: 'Javier' } });
+    await expect(auth.login('javier@correo.com', 'secreto1')).resolves.toMatchObject({ token: 'jwt-carlyn', refreshToken: 'refresh-carlyn' });
+  });
+});

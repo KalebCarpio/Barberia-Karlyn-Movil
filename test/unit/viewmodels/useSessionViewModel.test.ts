@@ -11,7 +11,8 @@ const user = { name: 'Javier Flores', email: 'javier@gmail.com', phone: '' };
 function fakes(googleToken: string | null = 'ya29.token-google') {
   const auth: AuthRepository = {
     login: jest.fn(),
-    loginWithGoogle: jest.fn().mockResolvedValue({ token: 'jwt-carlyn', user }),
+    loginWithGoogle: jest.fn().mockResolvedValue({ token: 'jwt-carlyn', refreshToken: 'refresh-carlyn', user }),
+    refresh: jest.fn(),
     getProfile: jest.fn(),
     updateProfile: jest.fn(),
   };
@@ -40,7 +41,7 @@ describe('useSessionViewModel con Google', () => {
     const result = await render(deps);
     expect(await call(() => result.current.signInWithGoogle())).toBeNull();
     expect(deps.auth.loginWithGoogle).toHaveBeenCalledWith('ya29.token-google');
-    expect(deps.storage.save).toHaveBeenCalledWith({ token: 'jwt-carlyn', email: 'javier@gmail.com' });
+    expect(deps.storage.save).toHaveBeenCalledWith({ token: 'jwt-carlyn', refreshToken: 'refresh-carlyn', email: 'javier@gmail.com' });
     expect(result.current.status).toBe('signedIn');
     expect(result.current.name).toBe('Javier Flores');
   });
@@ -68,5 +69,37 @@ describe('useSessionViewModel con Google', () => {
     await call(() => result.current.signOut());
     expect(deps.google.signOut).toHaveBeenCalled();
     expect(result.current.status).toBe('signedOut');
+  });
+});
+
+describe('useSessionViewModel: restaurar sesion guardada', () => {
+  const { ApiError } = jest.requireActual('../../../src/core/http/ApiClient');
+  const stored = { token: 'token-vencido', refreshToken: 'refresh-carlyn', email: 'javier@gmail.com' };
+
+  function restoreFakes(getProfile: jest.Mock, refresh: jest.Mock) {
+    const deps = fakes();
+    deps.auth.getProfile = getProfile;
+    deps.auth.refresh = refresh;
+    deps.storage.read = jest.fn().mockResolvedValue(stored);
+    return deps;
+  }
+
+  beforeEach(() => sessionStore.signOut());
+
+  it('renueva el token vencido y entra sin pedir iniciar sesion', async () => {
+    const getProfile = jest.fn().mockRejectedValueOnce(new ApiError('Token expirado', 401)).mockResolvedValueOnce(user);
+    const deps = restoreFakes(getProfile, jest.fn().mockResolvedValue({ token: 'token-nuevo', refreshToken: 'refresh-nuevo' }));
+    const { result } = await renderHook(() => useSessionViewModel(deps.auth, deps.storage, deps.google));
+    await waitFor(() => expect(result.current.status).toBe('signedIn'));
+    expect(getProfile).toHaveBeenLastCalledWith('token-nuevo', 'javier@gmail.com');
+    expect(result.current.token).toBe('token-nuevo');
+    expect(deps.storage.save).toHaveBeenCalledWith({ ...stored, token: 'token-nuevo', refreshToken: 'refresh-nuevo' });
+  });
+
+  it('pide iniciar sesion si el refresh token tambien vencio', async () => {
+    const deps = restoreFakes(jest.fn().mockRejectedValue(new ApiError('Token expirado', 401)), jest.fn().mockRejectedValue(new Error('Tu sesion expiro')));
+    const { result } = await renderHook(() => useSessionViewModel(deps.auth, deps.storage, deps.google));
+    await waitFor(() => expect(result.current.status).toBe('signedOut'));
+    expect(deps.storage.clear).toHaveBeenCalled();
   });
 });
