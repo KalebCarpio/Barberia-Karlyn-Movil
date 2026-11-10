@@ -9,6 +9,7 @@ import {
   RESEND_COOLDOWN_SECONDS,
   validateCode,
   validateNewAccount,
+  validatePrivacyAcceptance,
 } from '../../domain/account';
 import { ActionResult, errorMessage } from './types';
 import { useCountdown } from './useCountdown';
@@ -22,6 +23,8 @@ export function useRegisterViewModel(account: AccountRepository = repositories.a
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [passwordVisible, setPasswordVisible] = useState(false);
+  // El aviso de privacidad se acepta de forma explicita: la casilla empieza sin marcar.
+  const [acceptsPrivacy, setAcceptsPrivacy] = useState(false);
   const [loading, setLoading] = useState(false);
   const expiry = useCountdown();
   const cooldown = useCountdown();
@@ -37,7 +40,9 @@ export function useRegisterViewModel(account: AccountRepository = repositories.a
   };
 
   const submit = async (): Promise<ActionResult | null> => {
-    const validation = validateNewAccount(form, form.confirmPassword);
+    const validation = { ...validateNewAccount(form, form.confirmPassword) };
+    const privacyError = validatePrivacyAcceptance(acceptsPrivacy);
+    if (privacyError) validation.privacy = privacyError;
     setErrors(validation);
     if (Object.keys(validation).length) return null;
 
@@ -65,7 +70,7 @@ export function useRegisterViewModel(account: AccountRepository = repositories.a
 
     setLoading(true);
     try {
-      await account.verifyRegistration(form.email, form.code);
+      await account.verifyRegistration(form.email, form.code, acceptsPrivacy);
       expiry.stop();
       return { ok: true, title: '¡Cuenta creada!', message: 'Ya puedes iniciar sesion con tu correo y contrasena.' };
     } catch (error) {
@@ -97,6 +102,7 @@ export function useRegisterViewModel(account: AccountRepository = repositories.a
 
   const reset = () => {
     setForm(EMPTY_FORM);
+    setAcceptsPrivacy(false);
     setErrors({});
     setStep('form');
     expiry.stop();
@@ -110,6 +116,11 @@ export function useRegisterViewModel(account: AccountRepository = repositories.a
     setField,
     passwordVisible,
     togglePasswordVisible: () => setPasswordVisible((current) => !current),
+    acceptsPrivacy,
+    toggleAcceptsPrivacy: () => {
+      setAcceptsPrivacy((current) => !current);
+      setErrors((current) => ({ ...current, privacy: undefined }));
+    },
     loading,
     codeSecondsLeft: expiry.remaining,
     resendSecondsLeft: cooldown.remaining,

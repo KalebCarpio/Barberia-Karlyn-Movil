@@ -1,10 +1,11 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import { Header } from '../components/ui';
 import { useDialog } from '../feedback/DialogProvider';
 import { colors, styles } from '../theme/styles';
 import { SessionViewModel } from '../viewmodels/useSessionViewModel';
 
-export function ProfileScreen({ vm }: { vm: SessionViewModel }) {
+export function ProfileScreen({ vm, onOpenPrivacy }: { vm: SessionViewModel; onOpenPrivacy: () => void }) {
   const dialog = useDialog();
 
   const save = async () => {
@@ -34,6 +35,11 @@ export function ProfileScreen({ vm }: { vm: SessionViewModel }) {
       <Text style={styles.label}>Telefono</Text>
       <TextInput value={vm.phone} onChangeText={vm.setPhone} keyboardType="phone-pad" placeholder="Tu telefono" placeholderTextColor={colors.subtle} style={styles.input} />
       <Pressable onPress={save} style={styles.goldButton}><Text style={styles.goldButtonText}>Guardar cambios</Text></Pressable>
+      <Pressable onPress={onOpenPrivacy} style={styles.menuRow} accessibilityRole="button">
+        <Ionicons name="shield-checkmark-outline" size={20} color={colors.gold} />
+        <View style={styles.menuText}><Text style={styles.menuTitle}>Privacidad y datos</Text><Text style={styles.menuSubtitle}>Aviso, tus datos, preferencias y eliminar cuenta</Text></View>
+        <Ionicons name="chevron-forward" size={18} color={colors.subtle} />
+      </Pressable>
       <Pressable onPress={signOut} style={styles.logout}><Text style={styles.cancelText}>Cerrar sesion</Text></Pressable>
     </>
   );

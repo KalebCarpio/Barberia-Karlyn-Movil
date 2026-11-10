@@ -101,6 +101,10 @@ export const styles = StyleSheet.create({
   email: { color: colors.muted, textAlign: 'center', marginTop: 4, marginBottom: 8 },
   label: { color: colors.ink, fontSize: 13, fontWeight: '800', marginTop: 15, marginBottom: 7 },
   input: { height: 52, borderRadius: 10, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.paper, paddingHorizontal: 14, color: colors.ink, fontSize: 15 },
+  menuRow: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.paper, borderWidth: 1, borderColor: colors.border, borderRadius: 14, padding: 16, marginTop: 22 },
+  menuText: { flex: 1 },
+  menuTitle: { color: colors.ink, fontSize: 15, fontWeight: '900' },
+  menuSubtitle: { color: colors.muted, fontSize: 12, marginTop: 2 },
   logout: { alignSelf: 'center', padding: 16, marginTop: 10 },
   loginLogo: { width: 220, height: 92, alignSelf: 'flex-start', marginBottom: 12 },
   loginTitle: { color: colors.ink, fontSize: 34, lineHeight: 41, fontWeight: '900', marginTop: 16 },
@@ -114,6 +118,7 @@ export const styles = StyleSheet.create({
   dividerLine: { height: 1, flex: 1, backgroundColor: colors.border },
   dividerText: { color: colors.subtle, fontSize: 12 },
   googleButton: { height: 50, borderRadius: 10, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.paper, marginTop: 16 },
+  googleContent: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   googleText: { color: colors.ink, fontSize: 14, fontWeight: '800' },
   registerText: { textAlign: 'center', color: colors.muted, fontSize: 13, marginTop: 23 },
   nav: {

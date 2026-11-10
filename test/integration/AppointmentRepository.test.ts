@@ -47,8 +47,8 @@ describe('Citas', () => {
   it('cancela con DELETE sobre la cita', async () => {
     const fetchMock = mockFetchResponse({ ok: true });
     await appointments.cancel(7);
-    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(url).toBe(`${API_URL}/api/citas/7`);
-    expect(init.method).toBe('DELETE');
+    expect(requestOf(fetchMock).url).toBe(`${API_URL}/api/citas/7`);
+    // Con cuerpo: el backend (Express 5) no recibe req.body en un DELETE vacio.
+    expect(sentBody(fetchMock)).toEqual({ method: 'DELETE', body: { motivo: 'Cancelada por el cliente desde la app movil' } });
   });
 });

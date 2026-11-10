@@ -24,13 +24,13 @@ describe('Registro', () => {
 
   it('verifica el codigo de registro', async () => {
     const fetchMock = mockFetchResponse({ message: 'Cuenta creada exitosamente.' });
-    await account.verifyRegistration('javier@correo.com', ' 123456 ');
-    expect(sent(fetchMock)).toMatchObject({ url: `${API_URL}/api/auth/verify-email`, body: { correoElectronico: 'javier@correo.com', code: '123456' } });
+    await account.verifyRegistration('javier@correo.com', ' 123456 ', true);
+    expect(sent(fetchMock)).toMatchObject({ url: `${API_URL}/api/auth/verify-email`, body: { correoElectronico: 'javier@correo.com', code: '123456', aceptaPrivacidad: true } });
   });
 
   it('propaga el codigo vencido que informa el backend', async () => {
     mockFetchResponse({ message: 'El código de verificación ha expirado' }, 400);
-    await expect(account.verifyRegistration('javier@correo.com', '123456')).rejects.toThrow('El código de verificación ha expirado');
+    await expect(account.verifyRegistration('javier@correo.com', '123456', true)).rejects.toThrow('El código de verificación ha expirado');
   });
 
   it('propaga el limite de reenvios del backend', async () => {
@@ -59,5 +59,45 @@ describe('Recuperacion de contrasena', () => {
     fetchMock = mockFetchResponse({ message: 'Contraseña actualizada exitosamente' });
     await account.resetPassword('javier@correo.com', 'nueva123');
     expect(sent(fetchMock)).toMatchObject({ url: `${API_URL}/api/auth/reset-password`, body: { correoElectronico: 'javier@correo.com', newPassword: 'nueva123' } });
+  });
+});
+
+describe('Inicio de sesion con Google', () => {
+  const { auth } = createRepositories();
+
+  it('envia el access token de Google y devuelve la sesion del backend', async () => {
+    const fetchMock = mockFetchResponse({
+      token: 'jwt-carlyn',
+      user: { nombre: 'Javier Flores', email: 'javier@gmail.com', telefono: null },
+    });
+    const result = await auth.loginWithGoogle('ya29.token-google');
+    expect(sent(fetchMock)).toEqual({ url: `${API_URL}/api/auth/google`, method: 'POST', body: { googleToken: 'ya29.token-google' } });
+    expect(result).toEqual({ token: 'jwt-carlyn', user: { name: 'Javier Flores', email: 'javier@gmail.com', phone: '' } });
+  });
+
+  it('rechaza una respuesta sin token de sesion', async () => {
+    mockFetchResponse({ message: 'ok' });
+    await expect(auth.loginWithGoogle('ya29.token-google')).rejects.toThrow('El servidor no devolvio una sesion valida.');
+  });
+});
+
+describe('Renovar sesion', () => {
+  const { auth } = createRepositories();
+
+  it('pide un token nuevo con el refresh token, sin enviar token de sesion', async () => {
+    const fetchMock = mockFetchResponse({ token: 'jwt-nuevo', refreshToken: 'refresh-nuevo' });
+    await expect(auth.refresh('refresh-viejo')).resolves.toEqual({ token: 'jwt-nuevo', refreshToken: 'refresh-nuevo' });
+    expect(sent(fetchMock)).toEqual({ url: `${API_URL}/api/auth/refresh`, method: 'POST', body: { refreshToken: 'refresh-viejo' } });
+    expect(requestOf(fetchMock).headers.Authorization).toBeUndefined();
+  });
+
+  it('propaga el rechazo cuando el refresh token vencio', async () => {
+    mockFetchResponse({ message: 'Tu sesion expiro. Inicia sesion de nuevo.' }, 401);
+    await expect(auth.refresh('refresh-vencido')).rejects.toThrow('Tu sesion expiro');
+  });
+
+  it('guarda el refresh token que devuelve el login', async () => {
+    mockFetchResponse({ token: 'jwt-carlyn', refreshToken: 'refresh-carlyn', user: { nombre: 'Javier' } });
+    await expect(auth.login('javier@correo.com', 'secreto1')).resolves.toMatchObject({ token: 'jwt-carlyn', refreshToken: 'refresh-carlyn' });
   });
 });

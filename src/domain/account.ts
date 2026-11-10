@@ -11,7 +11,7 @@ export const RESEND_COOLDOWN_SECONDS = 30;
 export type NewAccount = { name: string; email: string; phone: string; password: string };
 
 export type AccountField = 'name' | 'email' | 'phone' | 'password' | 'confirmPassword' | 'code';
-export type FieldErrors = Partial<Record<AccountField, string>>;
+export type FieldErrors = Partial<Record<AccountField | 'privacy', string>>;
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -53,6 +53,10 @@ export function validateNewAccount(account: NewAccount, confirmation: string): F
     password: validatePassword(account.password),
     confirmPassword: validateConfirmation(account.password, confirmation),
   });
+}
+
+export function validatePrivacyAcceptance(accepted: boolean) {
+  return accepted ? undefined : 'Para crear tu cuenta debes aceptar el Aviso de Privacidad.';
 }
 
 export function formatCountdown(seconds: number) {

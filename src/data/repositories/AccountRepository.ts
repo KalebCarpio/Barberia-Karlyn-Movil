@@ -6,7 +6,7 @@ const CHANNEL = 'email';
 
 export interface AccountRepository {
   register(account: NewAccount): Promise<void>;
-  verifyRegistration(email: string, code: string): Promise<void>;
+  verifyRegistration(email: string, code: string, acceptsPrivacy: boolean): Promise<void>;
   resendRegistrationCode(email: string): Promise<void>;
   requestPasswordReset(email: string): Promise<void>;
   verifyRecoveryCode(email: string, code: string): Promise<void>;
@@ -34,8 +34,9 @@ export class ApiAccountRepository implements AccountRepository {
     });
   }
 
-  async verifyRegistration(email: string, code: string) {
-    await this.post('/auth/verify-email', { correoElectronico: email.trim(), code: code.trim() });
+  // aceptaPrivacidad deja registrada la aceptacion del aviso junto con la cuenta nueva.
+  async verifyRegistration(email: string, code: string, acceptsPrivacy: boolean) {
+    await this.post('/auth/verify-email', { correoElectronico: email.trim(), code: code.trim(), aceptaPrivacidad: acceptsPrivacy });
   }
 
   async resendRegistrationCode(email: string) {

@@ -154,6 +154,7 @@ Esta rama incorpora un cliente movil funcional para consultar el catalogo y gest
 
 - Inicio de sesion y persistencia local de la sesion mediante `expo-secure-store`.
 - Crear cuenta con codigo de verificacion por correo y recuperar la contrasena desde la app.
+- Privacidad y derechos ARCO: aviso de privacidad con aceptacion explicita, mis datos, switches de oposicion y eliminar cuenta.
 - Consulta de sucursales, servicios y barberos relacionados con una sucursal.
 - Consulta de dias y horarios disponibles para el servicio elegido.
 - Creacion, consulta, cancelacion y reprogramacion de citas desde la aplicacion.
@@ -193,6 +194,6 @@ npx expo-doctor
 | `test/unit/` | Unitarias (caja blanca) | Reglas de dominio, ApiClient (Singleton), SessionStore (Observer), ModelFactory (Factory) y ViewModels con Repositories falsos, sin red (40 pruebas) |
 | `test/integration/` | Integración REST API | Repositories: endpoint, token, respuesta con datos, respuesta vacía, error de API y falla de red, con `fetch` simulado (24 pruebas) |
 
-Los casos, datos usados y resultados de cada Issue se registran en [`docs/pruebas/catalogo-y-disponibilidad.md`](docs/pruebas/catalogo-y-disponibilidad.md) y [`docs/pruebas/registro-y-recuperacion.md`](docs/pruebas/registro-y-recuperacion.md).
+Los casos, datos usados y resultados de cada Issue se registran en [`docs/pruebas/catalogo-y-disponibilidad.md`](docs/pruebas/catalogo-y-disponibilidad.md), [`docs/pruebas/registro-y-recuperacion.md`](docs/pruebas/registro-y-recuperacion.md), [`docs/pruebas/privacidad-arco.md`](docs/pruebas/privacidad-arco.md)  [`docs/pruebas/sesion-y-refresh-token.md`](docs/pruebas/sesion-y-refresh-token.md) y la matriz de caja negra en [`docs/pruebas/matriz-caja-negra.md`](docs/pruebas/matriz-caja-negra.md).
 
 Las pruebas completas con datos reales del backend y la aprobacion de otro integrante son necesarias antes de cerrar los Issues o fusionar la rama hacia `develop`.
