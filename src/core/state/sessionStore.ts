@@ -19,6 +19,10 @@ export class SessionStore extends Observable<SessionState> {
     this.setState({ status: 'signedIn', token, user });
   }
 
+  updateToken(token: string) {
+    this.setState({ ...this.getState(), token });
+  }
+
   updateUser(user: UserProfile) {
     this.setState({ ...this.getState(), user });
   }

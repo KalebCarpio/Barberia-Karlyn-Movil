@@ -1,4 +1,5 @@
 // Dobles de prueba de los Repositories: los ViewModels se prueban sin red gracias a sus interfaces.
+import { AccountRepository } from '../../../src/data/repositories/AccountRepository';
 import { AppointmentRepository } from '../../../src/data/repositories/AppointmentRepository';
 import { AvailabilityRepository } from '../../../src/data/repositories/AvailabilityRepository';
 import { CatalogRepository } from '../../../src/data/repositories/CatalogRepository';
@@ -38,6 +39,19 @@ export function fakeAppointments(overrides: Partial<AppointmentRepository> = {})
     create: jest.fn().mockResolvedValue(undefined),
     reschedule: jest.fn().mockResolvedValue(undefined),
     cancel: jest.fn().mockResolvedValue(undefined),
+    ...overrides,
+  };
+}
+
+export function fakeAccount(overrides: Partial<AccountRepository> = {}): AccountRepository {
+  return {
+    register: jest.fn().mockResolvedValue(undefined),
+    verifyRegistration: jest.fn().mockResolvedValue(undefined),
+    resendRegistrationCode: jest.fn().mockResolvedValue(undefined),
+    requestPasswordReset: jest.fn().mockResolvedValue(undefined),
+    verifyRecoveryCode: jest.fn().mockResolvedValue(undefined),
+    resendRecoveryCode: jest.fn().mockResolvedValue(undefined),
+    resetPassword: jest.fn().mockResolvedValue(undefined),
     ...overrides,
   };
 }

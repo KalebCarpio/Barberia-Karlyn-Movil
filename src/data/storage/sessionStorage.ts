@@ -5,6 +5,8 @@ const SESSION_KEY = 'carlyn-mobile-session';
 export type StoredSession = {
   token: string;
   email: string;
+  // Las sesiones guardadas antes del refresh token no lo tienen: al vencer piden iniciar sesion.
+  refreshToken?: string;
 };
 
 export interface SessionStorage {
