@@ -194,6 +194,6 @@ npx expo-doctor
 | `test/unit/` | Unitarias (caja blanca) | Reglas de dominio, ApiClient (Singleton), SessionStore (Observer), ModelFactory (Factory) y ViewModels con Repositories falsos, sin red (40 pruebas) |
 | `test/integration/` | Integración REST API | Repositories: endpoint, token, respuesta con datos, respuesta vacía, error de API y falla de red, con `fetch` simulado (24 pruebas) |
 
-Los casos, datos usados y resultados de cada Issue se registran en [`docs/pruebas/catalogo-y-disponibilidad.md`](docs/pruebas/catalogo-y-disponibilidad.md), [`docs/pruebas/registro-y-recuperacion.md`](docs/pruebas/registro-y-recuperacion.md), [`docs/pruebas/privacidad-arco.md`](docs/pruebas/privacidad-arco.md) y [`docs/pruebas/sesion-y-refresh-token.md`](docs/pruebas/sesion-y-refresh-token.md).
+Los casos, datos usados y resultados de cada Issue se registran en [`docs/pruebas/catalogo-y-disponibilidad.md`](docs/pruebas/catalogo-y-disponibilidad.md), [`docs/pruebas/registro-y-recuperacion.md`](docs/pruebas/registro-y-recuperacion.md), [`docs/pruebas/privacidad-arco.md`](docs/pruebas/privacidad-arco.md)  [`docs/pruebas/sesion-y-refresh-token.md`](docs/pruebas/sesion-y-refresh-token.md) y la matriz de caja negra en [`docs/pruebas/matriz-caja-negra.md`](docs/pruebas/matriz-caja-negra.md).
 
 Las pruebas completas con datos reales del backend y la aprobacion de otro integrante son necesarias antes de cerrar los Issues o fusionar la rama hacia `develop`.
