@@ -47,7 +47,7 @@ Responsable de ejecución: Javier Flores Hernández. Dispositivo: Android (anota
 | CN-20 | Reservar sin horario | "Confirmar cita" sin elegir horario | — | Diálogo "Completa la reserva" | ⬜ | ⬜ | |
 | CN-21 | Ver mis citas | Pestaña "Mis citas" | — | La cita reservada aparece como pendiente | ✅ | ⬜ | |
 | CN-22 | Reagendar cita | "Reagendar" → otro horario → guardar | — | "¡Cita reprogramada!" y la cita muestra el horario nuevo | ⬜ | ⬜ | |
-| CN-23 | Cancelar cita | "Cancelar" → confirmar | — | Diálogo de confirmación con el resumen; la cita queda cancelada | ⬜ | ⬜ | |
+| CN-23 | Cancelar cita | "Cancelar" → confirmar | — | Diálogo de confirmación con el resumen; la cita queda cancelada | ⬜ | ❌ (ERR-11) → reprobar | |
 
 ### Privacidad, recordatorios y perfil
 
@@ -91,6 +91,7 @@ Los casos marcados **N/A** en Debug usan módulos nativos (notificaciones o Cert
 | ERR-07 | CN-08 | Debug | Si fallaba el correo, el registro quedaba esperando sin respuesta | `register` no respondía el error | Se responde el error al cliente (backend) | `f0c322c8` (backend) | ✅ |
 | ERR-08 | CN-11 | Debug | Un código de recuperación correcto podía rechazarse | Comparación estricta de tipos distintos | Se comparan como texto (backend) | `f0c322c8` (backend) | ✅ |
 | ERR-09 | CN-05 | Debug | `DEVELOPER_ERROR` al entrar con Google | No existía el cliente OAuth de Android con el paquete y la SHA-1 de la app | Proyecto "Carlyn Movil" en Google Cloud con clientes web y Android | `0ec0181` | ✅ Release |
+| ERR-11 | CN-23 | Release | Al confirmar la cancelación: "Cannot read properties of undefined (reading 'motivo')" | La app enviaba el `DELETE` sin cuerpo y en Express 5 `req.body` queda `undefined`; el backend leía `req.body.motivo` | Backend: lectura segura `req.body?.motivo`. App: envía el motivo "Cancelada por el cliente desde la app movil" | `b28c80ce` (backend) y app | ⬜ |
 | ERR-10 | — | Release | El APK pedía 29 permisos, varios sin uso (huella, push, contadores) | Los agregan las librerías al combinar manifiestos | Se bloquearon; quedaron 8 | `cbeecf3` | ✅ |
 
 ## Resumen
@@ -100,6 +101,6 @@ Los casos marcados **N/A** en Debug usan módulos nativos (notificaciones o Cert
 | Casos aplicables | 34 | 40 |
 | ✅ Pasan | 11 | 1 |
 | ⬜ Pendientes | 23 | 39 |
-| Errores encontrados y corregidos | 10 | |
+| Errores encontrados y corregidos | 11 | |
 
 Actualizar este resumen al terminar la ejecución.
