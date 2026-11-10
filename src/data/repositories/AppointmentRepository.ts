@@ -3,6 +3,7 @@ import { ApiClient } from '../../core/http/ApiClient';
 import { Appointment, NewAppointment } from '../../domain/models';
 import { ModelFactory } from '../factories/ModelFactory';
 
+const CANCELLATION_REASON = 'Cancelada por el cliente desde la app movil';
 const PENDING_STATUS_ID = Number(process.env.EXPO_PUBLIC_PENDING_APPOINTMENT_STATUS_ID || '1');
 
 export interface AppointmentRepository {
@@ -48,7 +49,8 @@ export class ApiAppointmentRepository implements AppointmentRepository {
     });
   }
 
+  // El motivo queda registrado para la barberia en la cita cancelada.
   async cancel(id: number) {
-    await this.client.request(`/citas/${id}`, { method: 'DELETE', auth: true });
+    await this.client.request(`/citas/${id}`, { method: 'DELETE', auth: true, body: { motivo: CANCELLATION_REASON } });
   }
 }
